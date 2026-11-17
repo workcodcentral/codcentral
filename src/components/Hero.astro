@@ -1,9 +1,9 @@
 ---
 const stats = [
-  { value: '340+', label: 'Brands Scaled' },
-  { value: '2.8B',  label: 'Impressions Delivered' },
-  { value: '190+', label: 'Markets Reached' },
-  { value: '24',   label: 'Industry Awards' },
+  { value: '340', suffix: '+', label: 'Brands Scaled' },
+  { value: '2.8', suffix: 'B', label: 'Impressions Delivered' },
+  { value: '190', suffix: '+', label: 'Markets Reached' },
+  { value: '24',  suffix: '',  label: 'Industry Awards' },
 ];
 ---
 
@@ -70,8 +70,18 @@ const stats = [
     <div class="container-site">
       <div class="grid grid-cols-2 md:grid-cols-4">
         {stats.map((s, i) => (
-          <div class={`reveal py-7 px-4 text-center ${i < stats.length - 1 ? 'border-r border-white/10' : ''}`} style={`transition-delay:${i * 80}ms`}>
-            <div class="font-display font-800 text-3xl md:text-4xl text-white">{s.value}</div>
+          <div
+            class={`reveal py-7 px-4 text-center ${i < stats.length - 1 ? 'border-r border-white/10' : ''}`}
+            style={`transition-delay:${i * 80}ms`}
+          >
+            <div class="font-display font-800 text-3xl md:text-4xl text-white">
+              <span
+                class="count-up"
+                data-target={s.value}
+                data-suffix={s.suffix}
+                data-decimal={s.value.includes('.') ? 'true' : 'false'}
+              >0</span>{s.suffix}
+            </div>
             <div class="font-body text-xs text-white/50 mt-1 tracking-wide">{s.label}</div>
           </div>
         ))}
@@ -79,3 +89,44 @@ const stats = [
     </div>
   </div>
 </section>
+
+<script>
+  const counters = document.querySelectorAll<HTMLElement>('.count-up');
+
+  const animateCounter = (el: HTMLElement) => {
+    const target   = parseFloat(el.dataset.target!);
+    const decimal  = el.dataset.decimal === 'true';
+    const duration = 2000;
+    const steps    = 60;
+    const interval = duration / steps;
+    let current    = 0;
+    let step       = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      // ease-out: fast start, slow finish
+      const progress = 1 - Math.pow(1 - step / steps, 3);
+      current = target * progress;
+
+      el.textContent = decimal
+        ? current.toFixed(1)
+        : Math.floor(current).toString();
+
+      if (step >= steps) {
+        clearInterval(timer);
+        el.textContent = decimal ? target.toFixed(1) : target.toString();
+      }
+    }, interval);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target as HTMLElement);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+
+  counters.forEach(el => observer.observe(el));
+</script>
