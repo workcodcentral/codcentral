@@ -1,0 +1,135 @@
+---
+const clients = [
+  'Accenture', 'Shopify', 'Stripe', 'Figma', 'Notion', 'Vercel',
+  'Intercom', 'Loom', 'Linear', 'Framer', 'Webflow', 'Miro',
+  'Airtable', 'Canva', 'Atlassian', 'Brex', 'Deel', 'Rippling',
+];
+
+const testimonials = [
+  {
+    quote: "Codcentral didn't just run our campaigns — they rebuilt how we think about growth. Within six months we had tripled our qualified pipeline and cut CAC by 38%.",
+    name: 'Amara Osei',
+    title: 'CMO, Trello Financial',
+    initials: 'AO',
+    color: 'bg-red-400',
+  },
+  {
+    quote: "The rebrand they delivered exceeded every stakeholder expectation. User retention jumped 22% in the first quarter post-launch. I genuinely can't imagine a better creative partner.",
+    name: 'Priya Mehta',
+    title: 'CEO, Luminary Health',
+    initials: 'PM',
+    color: 'bg-sage-300',
+  },
+  {
+    quote: "Their technology team built our entire growth stack in eight weeks. Attribution is finally accurate, our paid efficiency improved by 2.4× and we have visibility we never had before.",
+    name: 'James Thornton',
+    title: 'VP Growth, Nexus SaaS',
+    initials: 'JT',
+    color: 'bg-navy-300',
+  },
+];
+---
+
+<section id="clients" class="bg-navy-500 overflow-hidden py-20">
+  <!-- Section header -->
+  <div class="container-site mb-14 text-center">
+    <span class="eyebrow !text-white/50 before:bg-white/30 mb-4">Social proof</span>
+    <h2 class="font-display font-800 text-display-lg text-white text-balance">
+      Trusted by the brands<br/><span class="text-red-400">defining tomorrow</span>
+    </h2>
+  </div>
+
+  <!-- Scrolling client ticker -->
+  <div class="ticker-wrap mb-16 py-5 border-y border-white/10">
+    <div class="ticker-track" aria-hidden="true">
+      {[...clients, ...clients].map((name) => (
+        <span class="inline-flex items-center mx-10 font-display font-700 text-xl text-white/25 hover:text-white/70 transition-colors duration-200 cursor-default tracking-tight whitespace-nowrap">
+          {name}
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <!-- Testimonial slider -->
+  <div class="container-site" id="testimonial-slider">
+    <div class="relative">
+      <!-- Slides -->
+      <div id="slider-track" class="overflow-hidden">
+        <div id="slides-container" class="flex transition-transform duration-500 ease-in-out">
+          {testimonials.map((t, i) => (
+            <div class="slide min-w-full px-4 md:px-16">
+              <div class="max-w-3xl mx-auto text-center">
+                <!-- Stars -->
+                <div class="flex justify-center gap-1 mb-7">
+                  {[1,2,3,4,5].map(() => (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#E8382A" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  ))}
+                </div>
+
+                <!-- Quote -->
+                <blockquote class="font-display font-500 text-xl md:text-2xl text-white/90 leading-snug text-balance italic mb-10">
+                  "{t.quote}"
+                </blockquote>
+
+                <!-- Attribution -->
+                <div class="flex items-center justify-center gap-4">
+                  <span class={`w-11 h-11 rounded-full ${t.color} flex items-center justify-center font-display font-700 text-sm text-white`}>
+                    {t.initials}
+                  </span>
+                  <div class="text-left">
+                    <div class="font-display font-700 text-white text-sm">{t.name}</div>
+                    <div class="font-body text-white/50 text-xs">{t.title}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Arrow buttons -->
+      <button id="prev-btn" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-6 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all duration-200" aria-label="Previous testimonial">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button id="next-btn" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-6 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all duration-200" aria-label="Next testimonial">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <!-- Dots -->
+    <div id="dots" class="flex justify-center items-center gap-2 mt-10">
+      {testimonials.map((_, i) => (
+        <button class={`dot ${i === 0 ? 'active' : ''}`} data-index={i} aria-label={`Go to testimonial ${i + 1}`}></button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  const container  = document.getElementById('slides-container')!;
+  const dots       = document.querySelectorAll<HTMLElement>('#dots .dot');
+  const totalSlides = document.querySelectorAll('.slide').length;
+  let current = 0;
+  let autoTimer: ReturnType<typeof setInterval>;
+
+  const goTo = (idx: number) => {
+    current = (idx + totalSlides) % totalSlides;
+    container.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  };
+
+  const startAuto = () => {
+    autoTimer = setInterval(() => goTo(current + 1), 5000);
+  };
+
+  const resetAuto = () => {
+    clearInterval(autoTimer);
+    startAuto();
+  };
+
+  document.getElementById('prev-btn')!.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+  document.getElementById('next-btn')!.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
+  dots.forEach((d) => d.addEventListener('click', () => { goTo(Number(d.dataset.index)); resetAuto(); }));
+
+  startAuto();
+</script>

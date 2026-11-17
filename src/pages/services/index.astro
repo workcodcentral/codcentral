@@ -1,0 +1,37 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import Services from '../../components/Services.astro';
+import BrandStatement from '../../components/BrandStatement.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<PageLayout
+  title="Services — Codcentral Studios"
+  description="Marketing, technology and design services that grow brands at scale. Explore what we do."
+>
+  <section class="bg-navy-500 pt-36 pb-20 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-red-400/10 blur-[100px]"></div>
+      <div class="absolute -bottom-16 -left-16 w-[400px] h-[400px] rounded-full bg-sage-300/10 blur-[80px]"></div>
+    </div>
+    <div class="container-site relative z-10">
+      <div class="reveal max-w-3xl">
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">What we do</span>
+        <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
+          Three disciplines.<br/><span class="text-red-400">One growth engine.</span>
+        </h1>
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+          Our marketing, technology, and design practices work together as a single integrated team —
+          each one amplifying the others to deliver outcomes no siloed agency can match.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <a href={`${base}/contact`} class="btn-primary">Get a proposal</a>
+          <a href={`${base}/work`}    class="btn-outline-white">See client results</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Services />
+  <BrandStatement />
+</PageLayout>

@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --navy:   #0D1B2A;
+    --red:    #E8382A;
+    --sage:   #7A9E7E;
+    --canvas: #FAF8F5;
+    --teal-dark: #0F2D2D;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-canvas font-body text-navy-500;
+    overflow-x: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* ---- Buttons ---- */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-red-400 text-white font-body font-600 px-7 py-3.5 rounded-full transition-all duration-200 hover:bg-red-500 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-sm tracking-wide;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 border-2 border-navy-500 text-navy-500 font-body font-600 px-7 py-3.5 rounded-full transition-all duration-200 hover:bg-navy-500 hover:text-white hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide;
+  }
+
+  .btn-outline-white {
+    @apply inline-flex items-center gap-2 border-2 border-white text-white font-body font-600 px-7 py-3.5 rounded-full transition-all duration-200 hover:bg-white hover:text-navy-500 hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide;
+  }
+
+  /* ---- Section wrappers ---- */
+  .section-pad {
+    @apply py-20 md:py-28;
+  }
+
+  .container-site {
+    @apply max-w-7xl mx-auto px-5 md:px-8 lg:px-12;
+  }
+
+  /* ---- Eyebrow label ---- */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-body font-700 tracking-[0.18em] uppercase text-red-400;
+  }
+
+  .eyebrow::before {
+    content: '';
+    @apply block w-6 h-px bg-red-400;
+  }
+
+  /* ---- Card base ---- */
+  .card {
+    @apply bg-white rounded-2xl p-7 shadow-sm border border-canvas-dark transition-all duration-200 hover:-translate-y-1 hover:shadow-md;
+  }
+
+  /* ---- Scroll reveal ---- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- Stagger children ---- */
+  .stagger > *:nth-child(1)  { transition-delay: 0ms; }
+  .stagger > *:nth-child(2)  { transition-delay: 80ms; }
+  .stagger > *:nth-child(3)  { transition-delay: 160ms; }
+  .stagger > *:nth-child(4)  { transition-delay: 240ms; }
+  .stagger > *:nth-child(5)  { transition-delay: 320ms; }
+  .stagger > *:nth-child(6)  { transition-delay: 400ms; }
+
+  /* ---- Nav ---- */
+  #site-nav {
+    @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white;
+  }
+
+  #site-nav.scrolled {
+    @apply bg-white shadow-sm;
+  }
+
+  /* ---- Tab active ---- */
+  .tab-btn.active {
+    @apply bg-navy-500 text-white;
+  }
+
+  /* ---- Slider dots ---- */
+  .dot {
+    @apply w-2 h-2 rounded-full bg-white/30 transition-all duration-200 cursor-pointer;
+  }
+
+  .dot.active {
+    @apply bg-white w-6;
+  }
+
+  /* ---- Client ticker ---- */
+  .ticker-wrap {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-track {
+    display: inline-flex;
+    animation: scrollLeft 40s linear infinite;
+  }
+
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  .bg-teal-dark { background-color: var(--teal-dark); }
+  .text-teal-dark { color: var(--teal-dark); }
+}

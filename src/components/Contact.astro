@@ -1,0 +1,284 @@
+---
+const budgets = [
+  'Under $5k / month',
+  '$5k – $15k / month',
+  '$15k – $50k / month',
+  '$50k+ / month',
+  'Project-based',
+];
+
+const serviceOptions = [
+  'Growth Marketing',
+  'Performance Advertising',
+  'SEO & Content',
+  'Web Development',
+  'Brand Identity',
+  'UI/UX Design',
+  'Full-Service Engagement',
+  'Other',
+];
+---
+
+<section id="contact" class="section-pad bg-canvas-dark">
+  <div class="container-site">
+    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+
+      <!-- Left: copy + details -->
+      <div>
+        <div class="reveal">
+          <span class="eyebrow mb-4">Get in touch</span>
+          <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance mt-4">
+            Let's build something that matters
+          </h2>
+          <p class="mt-5 font-body text-base text-navy-400/70 leading-relaxed">
+            Tell us about your brand and your goals. We'll review your enquiry within one business day
+            and schedule a 30-minute discovery call if there's a fit.
+          </p>
+        </div>
+
+        <!-- Contact details -->
+        <div class="reveal mt-12 space-y-6">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0 text-red-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <div class="font-display font-600 text-sm text-navy-500">Email us</div>
+              <a href="mailto:work.codcentral@gmail.com" class="font-body text-sm text-navy-400/70 hover:text-red-400 transition-colors duration-200">work.codcentral@gmail.com</a>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0 text-red-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.14 1.18 2 2 0 012.11.14h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+            <div>
+              <div class="font-display font-600 text-sm text-navy-500">Call us</div>
+              <a href="tel:+256754138667" class="font-body text-sm text-navy-400/70 hover:text-red-400 transition-colors duration-200">0754 138 667</a>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0 text-red-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="font-display font-600 text-sm text-navy-500">Offices</div>
+              <p class="font-body text-sm text-navy-400/70">Onsite &amp; Remote</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Office hours -->
+        <div class="reveal mt-10 p-5 rounded-2xl bg-white border border-canvas-dark">
+          <div class="font-display font-700 text-sm text-navy-500 mb-3">Response commitment</div>
+          <ul class="space-y-2 font-body text-sm text-navy-400/70">
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-sage-300 flex-shrink-0"></span>
+              Enquiries reviewed within 1 business day
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-sage-300 flex-shrink-0"></span>
+              Discovery call within 3 business days
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-sage-300 flex-shrink-0"></span>
+              Proposal within 5 business days of discovery
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right: form -->
+      <div class="reveal">
+        <form
+          id="inquiry-form"
+          class="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-canvas-dark"
+          novalidate
+        >
+          <!-- Success state (hidden by default) -->
+          <div id="form-success" class="hidden text-center py-10">
+            <div class="w-16 h-16 rounded-full bg-sage-50 flex items-center justify-center mx-auto mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7A9E7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 class="font-display font-700 text-xl text-navy-500 mb-2">Message received!</h3>
+            <p class="font-body text-sm text-navy-400/70">We'll be in touch within one business day. Looking forward to it.</p>
+          </div>
+
+          <!-- Error banner (hidden by default) -->
+          <div id="form-error-banner" class="hidden mb-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
+            <svg class="text-red-400 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p class="font-body text-xs text-red-500" id="form-error-text">Something went wrong. Please check the fields below and try again.</p>
+          </div>
+
+          <!-- Form fields -->
+          <div id="form-fields" class="space-y-5">
+            <!-- Name + Email -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div class="form-group">
+                <label class="form-label" for="f-name">Full name *</label>
+                <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Alex Johnson" class="form-input" required />
+                <span class="field-error hidden"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-email">Work email *</label>
+                <input id="f-email" name="email" type="email" autocomplete="email" placeholder="alex@company.com" class="form-input" required />
+                <span class="field-error hidden"></span>
+              </div>
+            </div>
+
+            <!-- Company -->
+            <div class="form-group">
+              <label class="form-label" for="f-company">Company *</label>
+              <input id="f-company" name="company" type="text" autocomplete="organization" placeholder="Acme Inc." class="form-input" required />
+              <span class="field-error hidden"></span>
+            </div>
+
+            <!-- Budget + Service -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div class="form-group">
+                <label class="form-label" for="f-budget">Monthly budget</label>
+                <select id="f-budget" name="budget" class="form-input">
+                  <option value="">Select range</option>
+                  {budgets.map(b => <option value={b}>{b}</option>)}
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-service">Service interest</label>
+                <select id="f-service" name="service" class="form-input">
+                  <option value="">Select service</option>
+                  {serviceOptions.map(s => <option value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <!-- Brief -->
+            <div class="form-group">
+              <label class="form-label" for="f-brief">
+                Tell us about your goals *
+                <span id="char-count" class="ml-auto font-body font-400 text-navy-400/40 text-xs">0 / 500</span>
+              </label>
+              <textarea
+                id="f-brief"
+                name="brief"
+                rows="4"
+                maxlength="500"
+                placeholder="Describe your brand, your biggest challenge, and what success looks like for you in 12 months..."
+                class="form-input resize-none"
+                required
+              ></textarea>
+              <span class="field-error hidden"></span>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn-primary w-full justify-center py-4 text-sm">
+              Send Enquiry
+              <svg id="submit-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <svg id="submit-spinner" class="hidden animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            </button>
+
+            <p class="font-body text-xs text-navy-400/40 text-center">
+              No spam. We respect your privacy. Unsubscribe any time.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .form-label {
+    @apply flex items-center justify-between font-body font-600 text-xs text-navy-500 mb-2 tracking-wide;
+  }
+  .form-input {
+    @apply w-full px-4 py-3 rounded-xl border border-canvas-dark bg-canvas font-body text-sm text-navy-500 placeholder-navy-400/40 outline-none transition-all duration-200;
+    @apply focus:border-navy-300 focus:ring-2 focus:ring-navy-100;
+  }
+  .form-input.error {
+    @apply border-red-300 ring-2 ring-red-50;
+  }
+  .field-error {
+    @apply block mt-1.5 font-body text-xs text-red-400;
+  }
+</style>
+
+<script>
+  const form       = document.getElementById('inquiry-form') as HTMLFormElement;
+  const brief      = document.getElementById('f-brief') as HTMLTextAreaElement;
+  const charCount  = document.getElementById('char-count')!;
+  const submitBtn  = document.getElementById('submit-btn')!;
+  const arrow      = document.getElementById('submit-arrow')!;
+  const spinner    = document.getElementById('submit-spinner')!;
+  const success    = document.getElementById('form-success')!;
+  const errorBanner= document.getElementById('form-error-banner')!;
+  const errorText  = document.getElementById('form-error-text')!;
+  const fields     = document.getElementById('form-fields')!;
+
+  // ---- Char counter ----
+  brief.addEventListener('input', () => {
+    const len = brief.value.length;
+    charCount.textContent = `${len} / 500`;
+    charCount.classList.toggle('text-red-400', len >= 480);
+  });
+
+  // ---- Validation helpers ----
+  const setError = (input: HTMLElement, msg: string) => {
+    input.classList.add('error');
+    const err = input.nextElementSibling as HTMLElement | null;
+    if (err?.classList.contains('field-error')) {
+      err.textContent = msg;
+      err.classList.remove('hidden');
+    }
+  };
+
+  const clearError = (input: HTMLElement) => {
+    input.classList.remove('error');
+    const err = input.nextElementSibling as HTMLElement | null;
+    if (err?.classList.contains('field-error')) {
+      err.textContent = '';
+      err.classList.add('hidden');
+    }
+  };
+
+  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+  // ---- Clear errors on input ----
+  form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.form-input').forEach(el => {
+    el.addEventListener('input', () => clearError(el));
+  });
+
+  // ---- Submit ----
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBanner.classList.add('hidden');
+
+    const nameEl    = document.getElementById('f-name')    as HTMLInputElement;
+    const emailEl   = document.getElementById('f-email')   as HTMLInputElement;
+    const companyEl = document.getElementById('f-company') as HTMLInputElement;
+    const briefEl   = document.getElementById('f-brief')   as HTMLTextAreaElement;
+
+    let valid = true;
+
+    if (!nameEl.value.trim()) { setError(nameEl, 'Please enter your full name.'); valid = false; }
+    if (!validateEmail(emailEl.value)) { setError(emailEl, 'Please enter a valid email address.'); valid = false; }
+    if (!companyEl.value.trim()) { setError(companyEl, 'Please enter your company name.'); valid = false; }
+    if (!briefEl.value.trim()) { setError(briefEl, 'Please tell us a bit about your goals.'); valid = false; }
+
+    if (!valid) {
+      errorBanner.classList.remove('hidden');
+      errorText.textContent = 'Please fill in the required fields before submitting.';
+      return;
+    }
+
+    // Simulate async submit
+    submitBtn.setAttribute('disabled', 'true');
+    arrow.classList.add('hidden');
+    spinner.classList.remove('hidden');
+
+    await new Promise(r => setTimeout(r, 1400));
+
+    // Show success (simulated — replace with real fetch() to your endpoint)
+    fields.classList.add('hidden');
+    success.classList.remove('hidden');
+  });
+</script>

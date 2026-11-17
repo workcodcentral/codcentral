@@ -1,0 +1,60 @@
+---
+const metrics = [
+  {
+    value: '340+',
+    label: 'Brands Scaled',
+    desc:  'From seed-stage startups to Fortune 500 enterprises',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  },
+  {
+    value: '2.8B',
+    label: 'Impressions',
+    desc:  'Delivered across paid, organic, and owned channels',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  },
+  {
+    value: '190+',
+    label: 'Markets Reached',
+    desc:  'Active campaigns running across six continents',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  },
+  {
+    value: '24',
+    label: 'Industry Awards',
+    desc:  'Recognised by Webby, Cannes, and D&AD',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+  },
+  {
+    value: '85+',
+    label: 'Team Members',
+    desc:  'Strategists, engineers, and creatives worldwide',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+  },
+];
+---
+
+<section id="results" class="section-pad bg-canvas-dark">
+  <div class="container-site">
+    <!-- Header -->
+    <div class="reveal max-w-2xl mb-14">
+      <span class="eyebrow mb-4">By the numbers</span>
+      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+        Results that redefine what growth looks like
+      </h2>
+    </div>
+
+    <!-- Metrics grid -->
+    <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      {metrics.map((m) => (
+        <div class="reveal card flex flex-col gap-4">
+          <div class="text-red-400" set:html={m.icon} />
+          <div>
+            <div class="font-display font-800 text-4xl text-navy-500 leading-none">{m.value}</div>
+            <div class="font-display font-700 text-sm text-navy-500 mt-1">{m.label}</div>
+          </div>
+          <p class="font-body text-xs text-navy-400/70 leading-relaxed">{m.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

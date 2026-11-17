@@ -1,0 +1,39 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import CaseStudy from '../../components/CaseStudy.astro';
+import ClientProof from '../../components/ClientProof.astro';
+import BrandStatement from '../../components/BrandStatement.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<PageLayout
+  title="Our Work — Codcentral Studios"
+  description="Real results from real brands. Explore case studies and client outcomes from Codcentral Studios."
+>
+  <section class="bg-navy-500 pt-36 pb-20 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-32 right-0 w-[500px] h-[500px] rounded-full bg-red-400/10 blur-[100px]"></div>
+      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-sage-300/10 blur-[80px]"></div>
+    </div>
+    <div class="container-site relative z-10">
+      <div class="reveal max-w-3xl">
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">Client results</span>
+        <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
+          Work that speaks<br/><span class="text-red-400">in numbers.</span>
+        </h1>
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+          Every case study here starts with a real brief, a measurable goal, and a team that refuses
+          to stop until the numbers move. Here's what that looks like in practice.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <a href={`${base}/contact`} class="btn-primary">Start your project</a>
+          <a href={`${base}/services`} class="btn-outline-white">Explore services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CaseStudy />
+  <ClientProof />
+  <BrandStatement />
+</PageLayout>

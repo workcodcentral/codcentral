@@ -1,0 +1,118 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const outcomes = [
+  { metric: '+312%', label: 'Organic traffic', period: '12 months' },
+  { metric: '−41%',  label: 'Customer acquisition cost', period: 'vs prior year' },
+  { metric: '4.8×',  label: 'Return on ad spend', period: 'peak quarter' },
+  { metric: '+58%',  label: 'Trial-to-paid conversion', period: 'post-redesign' },
+];
+
+const supporting = [
+  {
+    client: 'Trello Financial',
+    service: 'Performance Marketing',
+    result: 'Scaled from $200k to $2.4M monthly ad spend while improving ROAS from 1.9× to 4.1×.',
+    metric: '4.1× ROAS',
+    color: 'bg-red-400',
+  },
+  {
+    client: 'Luminary Health',
+    service: 'Brand Identity + Web',
+    result: 'Full rebrand and site rebuild delivered in 10 weeks. Patient enquiries increased 73% within 90 days.',
+    metric: '+73% enquiries',
+    color: 'bg-sage-300',
+  },
+];
+---
+
+<section id="case-study" class="section-pad bg-canvas-dark">
+  <div class="container-site">
+    <!-- Header -->
+    <div class="reveal max-w-2xl mb-16">
+      <span class="eyebrow mb-4">Featured work</span>
+      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+        How we tripled Nexus SaaS in one year
+      </h2>
+      <p class="mt-4 font-body text-base text-navy-400/70 leading-relaxed">
+        A B2B SaaS platform came to us with a leaking funnel, a dated brand, and no attribution clarity.
+        We rebuilt the growth engine from the ground up — and the results exceeded every target.
+      </p>
+    </div>
+
+    <!-- Main case study card -->
+    <div class="reveal rounded-3xl bg-navy-500 overflow-hidden mb-10">
+      <div class="grid lg:grid-cols-2 gap-0">
+        <!-- Left: visual -->
+        <div class="relative min-h-[300px] lg:min-h-0 bg-navy-600 flex items-center justify-center p-10">
+          <!-- Decorative abstract shape -->
+          <div class="absolute inset-0" aria-hidden="true">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-red-400/15 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-sage-300/10 rounded-full blur-2xl"></div>
+          </div>
+          <div class="relative z-10 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-400/20 border border-red-400/30 mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#E8382A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+            </div>
+            <div class="font-display font-800 text-4xl text-white mb-1">Nexus SaaS</div>
+            <div class="font-body text-sm text-white/50">Full-service growth engagement · 2024</div>
+            <div class="mt-6 flex flex-wrap justify-center gap-2">
+              {['Strategy', 'Performance', 'Technology', 'Design'].map(tag => (
+                <span class="px-3 py-1 rounded-full bg-white/10 text-white/70 font-body text-xs">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: outcomes -->
+        <div class="p-8 md:p-12">
+          <div class="font-body text-xs text-white/40 uppercase tracking-widest mb-8">Measurable outcomes</div>
+          <div class="grid grid-cols-2 gap-6">
+            {outcomes.map((o) => (
+              <div>
+                <div class="font-display font-800 text-3xl text-red-400 leading-none">{o.metric}</div>
+                <div class="font-display font-600 text-sm text-white mt-1">{o.label}</div>
+                <div class="font-body text-xs text-white/40 mt-0.5">{o.period}</div>
+              </div>
+            ))}
+          </div>
+
+          <p class="mt-10 font-body text-sm text-white/60 leading-relaxed border-t border-white/10 pt-8">
+            "Codcentral rebuilt every layer of our growth function — from attribution to creative. The
+            results speak for themselves, but what I value most is how they think. They're a true partner."
+          </p>
+          <div class="mt-5 flex items-center gap-3">
+            <span class="w-9 h-9 rounded-full bg-navy-300 flex items-center justify-center font-display font-700 text-sm text-white">JT</span>
+            <div>
+              <div class="font-display font-600 text-white text-sm">James Thornton</div>
+              <div class="font-body text-xs text-white/40">VP Growth, Nexus SaaS</div>
+            </div>
+          </div>
+
+          <a href={`${base}/contact`} class="btn-primary mt-8 text-xs px-6 py-3 self-start">
+            See Full Case Study
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supporting results -->
+    <div class="stagger grid grid-cols-1 md:grid-cols-2 gap-6">
+      {supporting.map((s) => (
+        <div class="reveal card border-transparent">
+          <div class="flex items-start gap-4 mb-5">
+            <span class={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center flex-shrink-0`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </span>
+            <div>
+              <div class="font-display font-700 text-navy-500">{s.client}</div>
+              <div class="font-body text-xs text-navy-400/60">{s.service}</div>
+            </div>
+          </div>
+          <p class="font-body text-sm text-navy-400/70 leading-relaxed mb-5">{s.result}</p>
+          <div class="font-display font-800 text-2xl text-navy-500">{s.metric}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+---
+const articles = [
+  {
+    tag: 'Growth Marketing',
+    readTime: '6 min read',
+    title: 'Why performance marketing plateaus — and the five levers that break through',
+    excerpt: 'Most brands hit a growth ceiling around $500k monthly ad spend. Here\'s the diagnostic framework we use to identify exactly which lever to pull.',
+    date: 'Nov 8, 2026',
+    author: 'Amara Osei',
+    authorRole: 'Head of Performance',
+    initials: 'AO',
+    color: 'bg-red-400',
+    img: 'marketing',
+  },
+  {
+    tag: 'Technology',
+    readTime: '8 min read',
+    title: 'Building a first-party data infrastructure that actually scales',
+    excerpt: 'Third-party cookies are gone. Here\'s how to architect a first-party data stack that gives you better attribution than you had before — at a lower cost.',
+    date: 'Oct 29, 2026',
+    author: 'Elena Reyes',
+    authorRole: 'Head of Engineering',
+    initials: 'ER',
+    color: 'bg-sage-300',
+    img: 'technology',
+  },
+  {
+    tag: 'Brand Design',
+    readTime: '5 min read',
+    title: 'The brief that changed everything: lessons from 50 rebrands',
+    excerpt: 'After running more than fifty brand identity projects, we\'ve noticed the same failure point in almost every one that went wrong. Here\'s how to avoid it.',
+    date: 'Oct 15, 2026',
+    author: 'Marcus Levi',
+    authorRole: 'Creative Director',
+    initials: 'ML',
+    color: 'bg-navy-300',
+    img: 'design',
+  },
+];
+
+const tagColors: Record<string, string> = {
+  'Growth Marketing': 'bg-red-50 text-red-400',
+  'Technology': 'bg-sage-50 text-sage-400',
+  'Brand Design': 'bg-navy-50 text-navy-300',
+};
+---
+
+<section id="insights" class="section-pad bg-canvas">
+  <div class="container-site">
+    <!-- Header -->
+    <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+      <div>
+        <span class="eyebrow mb-4">Our thinking</span>
+        <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance max-w-sm">
+          Insights from the front line
+        </h2>
+      </div>
+      <a href="#insights" class="inline-flex items-center gap-2 font-body font-600 text-sm text-navy-500 hover:text-red-400 transition-colors duration-200 pb-1 border-b border-navy-200 hover:border-red-400">
+        All articles
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- Article grid -->
+    <div class="stagger grid grid-cols-1 md:grid-cols-3 gap-7">
+      {articles.map((a) => (
+        <article class="reveal card group cursor-pointer flex flex-col gap-5 p-0 overflow-hidden">
+          <!-- Image placeholder -->
+          <div class={`relative h-48 overflow-hidden ${a.img === 'marketing' ? 'bg-gradient-to-br from-red-50 to-red-100' : a.img === 'technology' ? 'bg-gradient-to-br from-sage-50 to-sage-100' : 'bg-gradient-to-br from-navy-50 to-navy-100'}`}>
+            <div class="absolute inset-0 flex items-center justify-center opacity-20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round">
+                {a.img === 'marketing' && <><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></>}
+                {a.img === 'technology' && <><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>}
+                {a.img === 'design' && <><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></>}
+              </svg>
+            </div>
+            <div class="absolute top-4 left-4">
+              <span class={`inline-flex px-2.5 py-1 rounded-full font-body font-700 text-xs ${tagColors[a.tag] ?? 'bg-canvas text-navy-400'}`}>{a.tag}</span>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="px-6 pb-7 flex flex-col gap-4 flex-1">
+            <div class="flex items-center gap-3 text-xs font-body text-navy-400/50">
+              <span>{a.date}</span>
+              <span>·</span>
+              <span>{a.readTime}</span>
+            </div>
+
+            <h3 class="font-display font-700 text-base text-navy-500 leading-snug group-hover:text-red-400 transition-colors duration-200 text-balance">
+              {a.title}
+            </h3>
+
+            <p class="font-body text-sm text-navy-400/65 leading-relaxed flex-1">{a.excerpt}</p>
+
+            <div class="flex items-center gap-3 mt-auto pt-4 border-t border-canvas-dark">
+              <span class={`w-7 h-7 rounded-full ${a.color} flex items-center justify-center font-display font-700 text-xs text-white`}>{a.initials}</span>
+              <div>
+                <div class="font-display font-600 text-xs text-navy-500">{a.author}</div>
+                <div class="font-body text-xs text-navy-400/50">{a.authorRole}</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

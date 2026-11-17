@@ -1,0 +1,40 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import WhyUs from '../../components/WhyUs.astro';
+import Recognition from '../../components/Recognition.astro';
+import BrandStatement from '../../components/BrandStatement.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<PageLayout
+  title="About — Codcentral Studios"
+  description="Why brands choose Codcentral Studios. Our story, values, differentiators and industry recognition."
+>
+  <section class="bg-navy-500 pt-36 pb-20 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-24 -right-24 w-[500px] h-[500px] rounded-full bg-red-400/10 blur-[100px]"></div>
+      <div class="absolute -bottom-16 left-16 w-[400px] h-[400px] rounded-full bg-sage-300/10 blur-[80px]"></div>
+    </div>
+    <div class="container-site relative z-10">
+      <div class="reveal max-w-3xl">
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">Who we are</span>
+        <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
+          Built different.<br/><span class="text-red-400">Measured differently.</span>
+        </h1>
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+          Codcentral Studios was founded on one belief: that marketing, technology, and design
+          should never operate in silos. We built our agency around that conviction — and 340+
+          brands later, the results prove it every day.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <a href={`${base}/contact`}  class="btn-primary">Work with us</a>
+          <a href={`${base}/insights`} class="btn-outline-white">Read our thinking</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <WhyUs />
+  <Recognition />
+  <BrandStatement />
+</PageLayout>

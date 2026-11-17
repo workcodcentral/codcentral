@@ -1,0 +1,44 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import Contact from '../../components/Contact.astro';
+---
+
+<PageLayout
+  title="Contact — Codcentral Studios"
+  description="Start your digital growth journey. Send us an enquiry and we'll be in touch within one business day."
+>
+  <!-- Page hero banner -->
+  <section class="bg-navy-500 pt-36 pb-20 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-red-400/10 blur-[100px]"></div>
+      <div class="absolute -bottom-16 -left-16 w-[400px] h-[400px] rounded-full bg-sage-300/10 blur-[80px]"></div>
+    </div>
+    <div class="container-site relative z-10">
+      <div class="reveal max-w-3xl">
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">Get in touch</span>
+        <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
+          Let's build something<br/><span class="text-red-400">that matters.</span>
+        </h1>
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+          Tell us about your brand and your goals. Every enquiry is reviewed within one business day,
+          and if there's a fit, we'll schedule a 30-minute discovery call to explore it properly.
+        </p>
+        <!-- Trust signals -->
+        <div class="mt-10 flex flex-wrap gap-6">
+          {[
+            { stat: '340+',  label: 'Brands worked with' },
+            { stat: '4.9/5', label: 'Client satisfaction' },
+            { stat: '98%',   label: 'Retention rate' },
+          ].map(t => (
+            <div class="flex items-center gap-3">
+              <div class="font-display font-800 text-2xl text-red-400">{t.stat}</div>
+              <div class="font-body text-xs text-white/50 leading-tight max-w-[6rem]">{t.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+</PageLayout>

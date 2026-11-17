@@ -1,0 +1,75 @@
+---
+const markets = [
+  {
+    name: 'Consumer & Retail',
+    desc: 'DTC acquisition funnels, loyalty programs, and omnichannel campaigns that move product at scale.',
+    color: 'bg-red-50',
+    accent: 'text-red-400',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>`,
+  },
+  {
+    name: 'Technology & SaaS',
+    desc: 'Product-led growth, developer marketing, and pipeline acceleration for B2B and B2C tech companies.',
+    color: 'bg-sage-50',
+    accent: 'text-sage-400',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+  },
+  {
+    name: 'Finance & Fintech',
+    desc: 'Trust-first brand narratives, compliance-ready creative, and customer acquisition for financial services.',
+    color: 'bg-navy-50',
+    accent: 'text-navy-300',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`,
+  },
+  {
+    name: 'Healthcare & Wellness',
+    desc: 'Patient-centric communications, HIPAA-conscious digital campaigns, and brand equity for health brands.',
+    color: 'bg-sage-50',
+    accent: 'text-sage-300',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+  },
+  {
+    name: 'Education & Impact',
+    desc: 'Enrolment marketing, stakeholder engagement, and cause-driven creative for education and nonprofits.',
+    color: 'bg-red-50',
+    accent: 'text-red-300',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>`,
+  },
+  {
+    name: 'Media & Entertainment',
+    desc: 'Audience growth, content distribution strategy, and social-first campaigns for creators and studios.',
+    color: 'bg-navy-50',
+    accent: 'text-navy-200',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
+  },
+];
+---
+
+<section id="markets" class="section-pad bg-canvas">
+  <div class="container-site">
+    <div class="reveal text-center max-w-3xl mx-auto mb-16">
+      <span class="eyebrow mb-4">Our reach</span>
+      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+        We are your global digital growth partner
+      </h2>
+      <p class="mt-4 font-body text-base text-navy-400/70 leading-relaxed">
+        From Silicon Valley to Southeast Asia, we bring deep sector expertise and local market
+        intelligence to every engagement.
+      </p>
+    </div>
+
+    <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {markets.map((m) => (
+        <div class={`reveal card group cursor-default ${m.color} border-transparent`}>
+          <div class={`${m.accent} mb-5`} set:html={m.icon} />
+          <h3 class="font-display font-700 text-lg text-navy-500 mb-2">{m.name}</h3>
+          <p class="font-body text-sm text-navy-400/70 leading-relaxed">{m.desc}</p>
+          <div class={`mt-5 inline-flex items-center gap-1.5 text-xs font-600 font-body ${m.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+            Explore sector
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

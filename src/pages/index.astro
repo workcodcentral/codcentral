@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import ResultsBand from '../components/ResultsBand.astro';
+import Markets from '../components/Markets.astro';
+import ClientProof from '../components/ClientProof.astro';
+import BrandStatement from '../components/BrandStatement.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Codcentral Studios — Global Digital Growth Partner"
+  description="We scale brands through marketing, technology and design. Your global digital growth partner."
+>
+  <Nav />
+  <main>
+    <Hero />
+    <ResultsBand />
+    <Markets />
+    <ClientProof />
+    <BrandStatement />
+  </main>
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,125 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const links = [
+  { label: 'Services', href: `${base}/services` },
+  { label: 'Work',     href: `${base}/work` },
+  { label: 'About',    href: `${base}/about` },
+  { label: 'Insights', href: `${base}/insights` },
+  { label: 'Contact',  href: `${base}/contact` },
+];
+
+const { pathname } = Astro.url;
+const isActive = (href: string) =>
+  href === `${base}/` || href === base
+    ? pathname === `${base}/` || pathname === base
+    : pathname.startsWith(href);
+---
+
+<nav id="site-nav" aria-label="Main navigation">
+  <div class="container-site flex items-center justify-between h-16 md:h-20">
+
+    <!-- Logo -->
+    <a href={`${base}/`} class="flex items-center z-10" aria-label="Codcentral Studios home">
+      <img src={`${base}/codcentrallogo.png`} alt="Codcentral Studios" class="h-[90px] w-auto" />
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden md:flex items-center gap-8">
+      {links.map(link => (
+        <li>
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+            class={`nav-link font-body font-600 text-sm transition-colors duration-200 relative
+              after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-red-400 after:transition-all after:duration-200
+              ${isActive(link.href)
+                ? 'text-red-400 after:w-full'
+                : 'text-navy-500/80 hover:text-red-400 after:w-0 hover:after:w-full'
+              }`}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Desktop CTA -->
+    <a href={`${base}/contact`} class="hidden md:inline-flex btn-primary text-xs px-5 py-2.5">
+      Get Started
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+
+    <!-- Mobile burger -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden flex flex-col gap-1.5 p-2 z-10"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+    >
+      <span class="burger-line block w-6 h-0.5 bg-navy-500 transition-all duration-300 origin-center"></span>
+      <span class="burger-line block w-6 h-0.5 bg-navy-500 transition-all duration-300"></span>
+      <span class="burger-line block w-6 h-0.5 bg-navy-500 transition-all duration-300 origin-center"></span>
+    </button>
+  </div>
+
+  <!-- Mobile menu drawer -->
+  <div
+    id="mobile-menu"
+    class="md:hidden fixed inset-0 top-16 bg-canvas z-40 flex flex-col px-5 pt-8 pb-10 gap-6 translate-x-full transition-transform duration-300"
+    aria-hidden="true"
+  >
+    <ul class="flex flex-col gap-1">
+      {links.map(link => (
+        <li>
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+            class={`mobile-nav-link block font-display font-600 text-2xl py-3 border-b border-canvas-dark transition-colors duration-200
+              ${isActive(link.href) ? 'text-red-400' : 'text-navy-500 hover:text-red-400'}`}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    <a href={`${base}/contact`} class="btn-primary self-start mt-2">Get Started →</a>
+  </div>
+</nav>
+
+<script>
+  const nav      = document.getElementById('site-nav')!;
+  const btn      = document.getElementById('mobile-menu-btn')!;
+  const menu     = document.getElementById('mobile-menu')!;
+  const lines    = btn.querySelectorAll<HTMLElement>('.burger-line');
+  let   menuOpen = false;
+
+  // ---- Scroll: transparent → solid ----
+  const onScroll = () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ---- Mobile menu toggle ----
+  const toggleMenu = (open: boolean) => {
+    menuOpen = open;
+    btn.setAttribute('aria-expanded', String(open));
+    menu.setAttribute('aria-hidden', String(!open));
+    menu.classList.toggle('translate-x-full', !open);
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) {
+      lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+      lines[1].style.opacity   = '0';
+      lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+    } else {
+      lines[0].style.transform = '';
+      lines[1].style.opacity   = '';
+      lines[2].style.transform = '';
+    }
+  };
+
+  btn.addEventListener('click', () => toggleMenu(!menuOpen));
+  menu.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) toggleMenu(false); });
+</script>
