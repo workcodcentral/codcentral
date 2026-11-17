@@ -80,7 +80,7 @@ const stats = [
                 data-target={s.value}
                 data-suffix={s.suffix}
                 data-decimal={s.value.includes('.') ? 'true' : 'false'}
-              >0</span>{s.suffix}
+              >0{s.suffix}</span>
             </div>
             <div class="font-body text-xs text-white/50 mt-1 tracking-wide">{s.label}</div>
           </div>
@@ -91,42 +91,46 @@ const stats = [
 </section>
 
 <script>
-  const counters = document.querySelectorAll<HTMLElement>('.count-up');
+  document.querySelectorAll<HTMLElement>('.count-up').forEach(el => {
+    const target  = parseFloat(el.dataset.target!);
+    const suffix  = el.dataset.suffix ?? '';
+    const decimal = el.dataset.decimal === 'true';
+    let started   = false;
 
-  const animateCounter = (el: HTMLElement) => {
-    const target   = parseFloat(el.dataset.target!);
-    const decimal  = el.dataset.decimal === 'true';
-    const duration = 2000;
-    const steps    = 60;
-    const interval = duration / steps;
-    let current    = 0;
-    let step       = 0;
+    const run = () => {
+      if (started) return;
+      started = true;
 
-    const timer = setInterval(() => {
-      step++;
-      // ease-out: fast start, slow finish
-      const progress = 1 - Math.pow(1 - step / steps, 3);
-      current = target * progress;
+      const duration = 2000;
+      const startTime = performance.now();
 
-      el.textContent = decimal
-        ? current.toFixed(1)
-        : Math.floor(current).toString();
+      const tick = (now: number) => {
+        const elapsed  = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased    = 1 - Math.pow(1 - progress, 3);
+        const current  = target * eased;
 
-      if (step >= steps) {
-        clearInterval(timer);
-        el.textContent = decimal ? target.toFixed(1) : target.toString();
+        el.textContent = (decimal ? current.toFixed(1) : Math.floor(current).toString()) + suffix;
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = (decimal ? target.toFixed(1) : target.toString()) + suffix;
+        }
+      };
+
+      requestAnimationFrame(tick);
+    };
+
+    // Start as soon as the element is visible
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        run();
+        obs.disconnect();
       }
-    }, interval);
-  };
+    }, { threshold: 0.1 });
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target as HTMLElement);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.4 });
-
-  counters.forEach(el => observer.observe(el));
+    obs.observe(el);
+  });
 </script>
