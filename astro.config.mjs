@@ -2,6 +2,6 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  site: 'https://codcentral.co.ke',
+  site: 'https://codcentralstudios.co.ke',
   integrations: [tailwind()],
 });
