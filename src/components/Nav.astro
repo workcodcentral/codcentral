@@ -1,27 +1,23 @@
 ---
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 const links = [
-  { label: 'Services', href: `${base}/services` },
-  { label: 'Work',     href: `${base}/work` },
-  { label: 'About',    href: `${base}/about` },
-  { label: 'Insights', href: `${base}/insights` },
-  { label: 'Contact',  href: `${base}/contact` },
+  { label: 'Services', href: '/services' },
+  { label: 'Work',     href: '/work' },
+  { label: 'About',    href: '/about' },
+  { label: 'Insights', href: '/insights' },
+  { label: 'Contact',  href: '/contact' },
 ];
 
 const { pathname } = Astro.url;
 const isActive = (href: string) =>
-  href === `${base}/` || href === base
-    ? pathname === `${base}/` || pathname === base
-    : pathname.startsWith(href);
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
 ---
 
 <nav id="site-nav" aria-label="Main navigation">
   <div class="container-site flex items-center justify-between h-16 md:h-20">
 
     <!-- Logo -->
-    <a href={`${base}/`} class="flex items-center z-10" aria-label="Codcentral Studios home">
-      <img src={`${base}/codcentrallogo.png`} alt="Codcentral Studios" class="h-[90px] w-auto" />
+    <a href="/" class="flex items-center z-10" aria-label="Codcentral Studios home">
+      <img src="/codcentrallogo.png" alt="Codcentral Studios" class="h-[90px] w-auto" />
     </a>
 
     <!-- Desktop links -->
@@ -45,7 +41,7 @@ const isActive = (href: string) =>
     </ul>
 
     <!-- Desktop CTA -->
-    <a href={`${base}/contact`} class="hidden md:inline-flex btn-primary text-xs px-5 py-2.5">
+    <a href="/contact" class="hidden md:inline-flex btn-primary text-xs px-5 py-2.5">
       Get Started
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
     </a>
@@ -83,7 +79,7 @@ const isActive = (href: string) =>
         </li>
       ))}
     </ul>
-    <a href={`${base}/contact`} class="btn-primary self-start mt-2">Get Started →</a>
+    <a href="/contact" class="btn-primary self-start mt-2">Get Started →</a>
   </div>
 </nav>
 

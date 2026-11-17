@@ -1,24 +1,22 @@
 ---
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 const sitemap = [
   {
     heading: 'Services',
     links: [
-      { label: 'Growth Marketing',        href: `${base}/services` },
-      { label: 'Performance Advertising',  href: `${base}/services` },
-      { label: 'SEO & Content',           href: `${base}/services` },
-      { label: 'Web Development',         href: `${base}/services` },
-      { label: 'Brand Identity',          href: `${base}/services` },
-      { label: 'UI/UX Design',            href: `${base}/services` },
+      { label: 'Growth Marketing',        href: '/services' },
+      { label: 'Performance Advertising',  href: '/services' },
+      { label: 'SEO & Content',           href: '/services' },
+      { label: 'Web Development',         href: '/services' },
+      { label: 'Brand Identity',          href: '/services' },
+      { label: 'UI/UX Design',            href: '/services' },
     ],
   },
   {
     heading: 'Company',
     links: [
-      { label: 'About Us',     href: `${base}/about` },
-      { label: 'Case Studies', href: `${base}/work` },
-      { label: 'Insights',     href: `${base}/insights` },
+      { label: 'About Us',     href: '/about' },
+      { label: 'Case Studies', href: '/work' },
+      { label: 'Insights',     href: '/insights' },
       { label: 'Careers',      href: '#' },
       { label: 'Press',        href: '#' },
     ],
@@ -26,10 +24,10 @@ const sitemap = [
   {
     heading: 'Who We Serve',
     links: [
-      { label: 'Startups',           href: `${base}/about` },
-      { label: 'Growing Businesses', href: `${base}/about` },
-      { label: 'Enterprise',         href: `${base}/about` },
-      { label: 'Nonprofits',         href: `${base}/about` },
+      { label: 'Startups',           href: '/about' },
+      { label: 'Growing Businesses', href: '/about' },
+      { label: 'Enterprise',         href: '/about' },
+      { label: 'Nonprofits',         href: '/about' },
     ],
   },
 ];
@@ -64,8 +62,8 @@ const socials = [
 
       <!-- Brand column -->
       <div class="lg:col-span-2">
-        <a href={`${base}/`} class="inline-flex items-center mb-6" aria-label="Codcentral Studios home">
-          <img src={`${base}/codcentrallogo.png`} alt="Codcentral Studios" class="h-10 w-auto brightness-0 invert" />
+        <a href="/" class="inline-flex items-center mb-6" aria-label="Codcentral Studios home">
+          <img src="/codcentrallogo.png" alt="Codcentral Studios" class="h-10 w-auto brightness-0 invert" />
         </a>
 
         <p class="font-body text-sm text-white/50 leading-relaxed max-w-sm mb-8">
@@ -125,9 +123,9 @@ const socials = [
         © {new Date().getFullYear()} Codcentral Studios. All rights reserved.
       </p>
       <div class="flex items-center gap-6">
-        <a href={`${base}/privacy`} class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Privacy Policy</a>
-        <a href={`${base}/terms`}   class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Terms of Service</a>
-        <a href={`${base}/cookies`} class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Cookie Policy</a>
+        <a href="/privacy" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Privacy Policy</a>
+        <a href="/terms"   class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Terms of Service</a>
+        <a href="/cookies" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Cookie Policy</a>
       </div>
     </div>
   </div>
