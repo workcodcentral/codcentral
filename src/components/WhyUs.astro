@@ -1,1 +1,111 @@
-﻿
+---
+const differentiators = [
+  {
+    num: '01',
+    title: 'Strategy first, always',
+    desc: 'Every engagement starts with a growth audit and strategy sprint before a single deliverable is produced.',
+  },
+  {
+    num: '02',
+    title: 'Integrated across disciplines',
+    desc: 'Marketing, tech, and design teams working from the same brief " so nothing falls through the gaps.',
+  },
+  {
+    num: '03',
+    title: 'Radical transparency',
+    desc: 'Real-time dashboards, weekly calls, and honest reporting. You will never wonder what your money is doing.',
+  },
+  {
+    num: '04',
+    title: 'Speed without sacrifice',
+    desc: 'Rapid execution frameworks let us move at startup speed without compromising quality.',
+  },
+  {
+    num: '05',
+    title: 'Commercially accountable',
+    desc: 'We tie our work to business outcomes " not vanity metrics. Performance bonuses mean we win when you win.',
+  },
+  {
+    num: '06',
+    title: 'Global reach, local insight',
+    desc: 'Offices and partners across five continents give us genuine cultural and market intelligence worldwide.',
+  },
+];
+
+const segments = [
+  {
+    label: 'Startups',
+    desc: 'From pre-launch brand positioning to growth-stage paid acquisition. We\'ve scaled dozens of startups to their Series A and beyond.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="m12 15-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>`,
+    color: 'bg-red-50 border-red-100',
+    accent: 'text-red-400',
+  },
+  {
+    label: 'Growing Businesses',
+    desc: 'Revenue is coming in but growth has plateaued. We diagnose the bottleneck and build the systems to break through.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+    color: 'bg-sage-50 border-sage-100',
+    accent: 'text-sage-400',
+  },
+  {
+    label: 'Enterprise',
+    desc: 'Large organisations needing a specialist partner to execute ambitious digital transformation at scale and speed.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>`,
+    color: 'bg-navy-50 border-navy-100',
+    accent: 'text-navy-300',
+  },
+  {
+    label: 'Nonprofits',
+    desc: 'Mission-led organisations deserve world-class digital capability. We offer tailored packages for impact-first brands.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+    color: 'bg-red-50 border-red-100',
+    accent: 'text-red-300',
+  },
+];
+---
+
+<section id="why-us" class="section-pad bg-canvas">
+  <div class="container-site">
+    <!-- Header -->
+    <div class="reveal text-center max-w-2xl mx-auto mb-16">
+      <span class="eyebrow mb-4">Why choose us</span>
+      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+        Why brands choose Codcentral
+      </h2>
+      <p class="mt-4 font-body text-base text-navy-400/70 leading-relaxed">
+        Six things that make working with us fundamentally different from every other agency.
+      </p>
+    </div>
+
+    <!-- Differentiators -->
+    <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+      {differentiators.map((d) => (
+        <div class="reveal card">
+          <div class="font-body font-700 text-xs text-red-400 tracking-widest mb-4">{d.num}</div>
+          <h3 class="font-display font-700 text-lg text-navy-500 mb-3">{d.title}</h3>
+          <p class="font-body text-sm text-navy-400/70 leading-relaxed">{d.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Audience segments divider -->
+    <div class="reveal border-t border-canvas-dark pt-16">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="eyebrow mb-3">Who we serve</span>
+        <h3 class="font-display font-700 text-display-md text-navy-500 text-balance">
+          Built for every stage of growth
+        </h3>
+      </div>
+
+      <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {segments.map((s) => (
+          <div class={`reveal card ${s.color} border`}>
+            <div class={`${s.accent} mb-4`} set:html={s.icon} />
+            <h4 class="font-display font-700 text-base text-navy-500 mb-2">{s.label}</h4>
+            <p class="font-body text-xs text-navy-400/70 leading-relaxed">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

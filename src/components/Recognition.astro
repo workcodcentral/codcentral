@@ -1,1 +1,70 @@
-﻿
+---
+const awards = [
+  { body: 'Webby Awards',       year: '2024', category: 'Best Marketing Agency',       rank: 'Winner' },
+  { body: 'Cannes Lions',       year: '2024', category: 'Digital Craft " Brand',       rank: 'Gold' },
+  { body: 'D&AD',               year: '2024', category: 'Digital Design',              rank: 'Yellow Pencil' },
+  { body: 'Effie Awards',       year: '2023', category: 'B2B Effectiveness',           rank: 'Silver' },
+  { body: 'FWA',                year: '2024', category: 'Site of the Year',            rank: 'FOTM' },
+  { body: 'Campaign Big Awards',year: '2023', category: 'Agency of the Year',          rank: 'Shortlisted' },
+];
+---
+
+<section id="recognition" class="section-pad bg-canvas-dark">
+  <div class="container-site">
+    <div class="reveal text-center max-w-xl mx-auto mb-16">
+      <span class="eyebrow mb-4">Recognition</span>
+      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+        Recognised by the industry's<br/>most rigorous judges
+      </h2>
+    </div>
+
+    <!-- Client rating CTA bar -->
+    <div class="reveal rounded-2xl bg-navy-500 px-8 py-7 flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <div class="flex items-center gap-6">
+        <!-- Stars -->
+        <div class="flex gap-1">
+          {[1,2,3,4,5].map(() => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#E8382A" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          ))}
+        </div>
+        <div>
+          <div class="font-display font-800 text-3xl text-white">4.9 / 5.0</div>
+          <div class="font-body text-xs text-white/50 mt-0.5">Average client satisfaction across 39+ engagements</div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-center">
+        <div class="text-center">
+          <div class="font-display font-700 text-xl text-white">98%</div>
+          <div class="font-body text-xs text-white/50">Client retention</div>
+        </div>
+        <div class="w-px h-10 bg-white/15"></div>
+        <div class="text-center">
+          <div class="font-display font-700 text-xl text-white">92%</div>
+          <div class="font-body text-xs text-white/50">Referral rate</div>
+        </div>
+        <div class="w-px h-10 bg-white/15"></div>
+        <a href="/contact" class="btn-primary text-xs px-5 py-2.5">Work with us</a>
+      </div>
+    </div>
+
+    <!-- Awards grid -->
+    <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {awards.map((a) => (
+        <div class="reveal card flex items-start gap-5">
+          <!-- Trophy icon -->
+          <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center text-red-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-display font-700 text-sm text-navy-500">{a.body}</span>
+              <span class="font-body text-xs text-navy-400/40">{a.year}</span>
+            </div>
+            <div class="font-body text-xs text-navy-400/70 mb-2">{a.category}</div>
+            <span class="inline-flex px-2.5 py-0.5 rounded-full bg-red-50 text-red-400 font-body font-700 text-xs">{a.rank}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
