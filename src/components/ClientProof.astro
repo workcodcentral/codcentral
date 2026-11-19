@@ -1,53 +1,63 @@
 ---
-const clients = [
-  'Accenture', 'Shopify', 'Stripe', 'Figma', 'Notion', 'Vercel',
-  'Intercom', 'Loom', 'Linear', 'Framer', 'Webflow', 'Miro',
-  'Airtable', 'Canva', 'Atlassian', 'Brex', 'Deel', 'Rippling',
-];
-
 const testimonials = [
   {
-    quote: "Codcentral didn't just run our campaigns — they rebuilt how we think about growth. Within six months we had tripled our qualified pipeline and cut CAC by 38%.",
-    name: 'Amara Osei',
-    title: 'CMO, Trello Financial',
-    initials: 'AO',
+    quote: "Working with Codcentral Studios transformed how we communicate Hearts Foundation's mission online. Our donor enquiries increased by over 60% within two months. They don't just market — they understand your purpose and amplify it.",
+    name: 'Adelaide Mwanza',
+    title: 'Director, Hearts Foundation',
+    image: '/adelaide.jpeg',
+    initials: 'AM',
     color: 'bg-red-400',
   },
   {
-    quote: "The rebrand they delivered exceeded every stakeholder expectation. User retention jumped 22% in the first quarter post-launch. I genuinely can't imagine a better creative partner.",
-    name: 'Priya Mehta',
-    title: 'CEO, Luminary Health',
-    initials: 'PM',
+    quote: "Codcentral helped us position Almalyq Motors to the right audience at exactly the right time. Our showroom walk-ins doubled and our online leads went from near zero to a consistent pipeline. Strategic, precise and results-driven.",
+    name: 'Candy Dayo',
+    title: 'Marketer, Almalyq Motors',
+    image: '/almalyq.jpg',
+    initials: 'CD',
     color: 'bg-sage-300',
   },
   {
-    quote: "Their technology team built our entire growth stack in eight weeks. Attribution is finally accurate, our paid efficiency improved by 2.4× and we have visibility we never had before.",
-    name: 'James Thornton',
-    title: 'VP Growth, Nexus SaaS',
-    initials: 'JT',
+    quote: "Before Codcentral, we were doing random marketing and wondering why it wasn't working. They diagnosed our brand, repositioned us and within 90 days Euphrates Centre had a waiting list for our programmes.",
+    name: 'Beatrice Nafula',
+    title: 'Director, Euphrates Centre',
+    image: null,
+    initials: 'BN',
     color: 'bg-navy-300',
+  },
+  {
+    quote: "Codcentral Studios gave UGM a digital voice that actually resonates with our members and stakeholders. Our social engagement tripled and the quality of online enquiries improved dramatically. Truly professional work.",
+    name: 'Susan Lumumba',
+    title: 'UGM Party Secretary',
+    image: '/suzzy.jpeg',
+    initials: 'SL',
+    color: 'bg-red-300',
+  },
+  {
+    quote: "As a machinery business, I wasn't sure digital marketing would work for us. Codcentral proved me wrong — completely. They targeted the right farmers and agribusiness owners and our enquiries from online have never been higher.",
+    name: 'Maurice Odinga',
+    title: 'Director, Drfarm Machinery',
+    image: '/maurice.jpeg',
+    initials: 'MO',
+    color: 'bg-sage-400',
+  },
+  {
+    quote: "Grace Wangui brought Wicks Ecommerce to Codcentral at a critical growth stage. They rebuilt our entire digital strategy from the ground up — the results speak for themselves. Sales up 85% in one quarter.",
+    name: 'Grace Wangui',
+    title: 'Managing Director, Wicks Ecommerce',
+    image: '/grace.jpeg',
+    initials: 'GW',
+    color: 'bg-red-400',
   },
 ];
 ---
 
 <section id="clients" class="bg-navy-500 overflow-hidden py-20">
   <!-- Section header -->
-  <div class="container-site mb-14 text-center">
+  <div class="container-site mb-14 text-center reveal">
     <span class="eyebrow !text-white/50 before:bg-white/30 mb-4">Social proof</span>
-    <h2 class="font-display font-800 text-display-lg text-white text-balance">
-      Trusted by the brands<br/><span class="text-red-400">defining tomorrow</span>
+    <h2 class="font-display font-800 text-display-lg text-white text-balance mt-4">
+      What some of our<br/><span class="text-red-400">clients say</span>
     </h2>
-  </div>
-
-  <!-- Scrolling client ticker -->
-  <div class="ticker-wrap mb-16 py-5 border-y border-white/10">
-    <div class="ticker-track" aria-hidden="true">
-      {[...clients, ...clients].map((name) => (
-        <span class="inline-flex items-center mx-10 font-display font-700 text-xl text-white/25 hover:text-white/70 transition-colors duration-200 cursor-default tracking-tight whitespace-nowrap">
-          {name}
-        </span>
-      ))}
-    </div>
   </div>
 
   <!-- Testimonial slider -->
@@ -56,7 +66,7 @@ const testimonials = [
       <!-- Slides -->
       <div id="slider-track" class="overflow-hidden">
         <div id="slides-container" class="flex transition-transform duration-500 ease-in-out">
-          {testimonials.map((t, i) => (
+          {testimonials.map((t) => (
             <div class="slide min-w-full px-4 md:px-16">
               <div class="max-w-3xl mx-auto text-center">
                 <!-- Stars -->
@@ -73,9 +83,17 @@ const testimonials = [
 
                 <!-- Attribution -->
                 <div class="flex items-center justify-center gap-4">
-                  <span class={`w-11 h-11 rounded-full ${t.color} flex items-center justify-center font-display font-700 text-sm text-white`}>
-                    {t.initials}
-                  </span>
+                  {t.image ? (
+                    <img
+                      src={t.image}
+                      alt={t.name}
+                      class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-white/20"
+                    />
+                  ) : (
+                    <span class={`w-12 h-12 rounded-full ${t.color} flex items-center justify-center font-display font-700 text-sm text-white flex-shrink-0`}>
+                      {t.initials}
+                    </span>
+                  )}
                   <div class="text-left">
                     <div class="font-display font-700 text-white text-sm">{t.name}</div>
                     <div class="font-body text-white/50 text-xs">{t.title}</div>
@@ -106,8 +124,8 @@ const testimonials = [
 </section>
 
 <script>
-  const container  = document.getElementById('slides-container')!;
-  const dots       = document.querySelectorAll<HTMLElement>('#dots .dot');
+  const container   = document.getElementById('slides-container')!;
+  const dots        = document.querySelectorAll<HTMLElement>('#dots .dot');
   const totalSlides = document.querySelectorAll('.slide').length;
   let current = 0;
   let autoTimer: ReturnType<typeof setInterval>;
