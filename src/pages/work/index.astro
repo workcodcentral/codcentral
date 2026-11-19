@@ -1,14 +1,12 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
-import ClientProof from '../../components/ClientProof.astro';
 import BrandStatement from '../../components/BrandStatement.astro';
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <PageLayout
   title="Our Work — Codcentral Studios"
-  description="Real results from real brands. Explore case studies and client outcomes from Codcentral Studios."
+  description="Real campaigns. Real results. No random marketing. See how Codcentral Studios has grown brands across East Africa."
 >
   <section class="bg-navy-500 pt-36 pb-20 relative overflow-hidden">
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -19,11 +17,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <div class="reveal max-w-3xl">
         <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">Client results</span>
         <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
-          Work that speaks<br/><span class="text-red-400">in numbers.</span>
+          Real campaigns.<br/><span class="text-red-400">Real results.</span>
         </h1>
         <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
-          Every case study here starts with a real brief, a measurable goal, and a team that refuses
-          to stop until the numbers move. Here's what that looks like in practice.
+          Every case study here starts with a real brief, a measurable goal, and a strategy built on market reality — not guesswork. Here's what intentional marketing looks like in practice.
         </p>
         <div class="mt-10 flex flex-wrap gap-4">
           <a href="/contact" class="btn-primary">Start your project</a>
@@ -34,6 +31,5 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </section>
 
   <CaseStudy />
-  <ClientProof />
   <BrandStatement />
 </PageLayout>
