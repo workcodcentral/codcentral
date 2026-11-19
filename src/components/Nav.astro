@@ -79,7 +79,7 @@ const isActive = (href: string) =>
         </li>
       ))}
     </ul>
-    <a href="/contact" class="btn-primary self-start mt-2">Get Started â†’</a>
+    <a href="/contact" class="btn-primary self-start mt-2">Get Started â†'</a>
   </div>
 </nav>
 
@@ -90,7 +90,7 @@ const isActive = (href: string) =>
   const lines    = btn.querySelectorAll<HTMLElement>('.burger-line');
   let   menuOpen = false;
 
-  // ---- Scroll: transparent â†’ solid ----
+  // ---- Scroll: transparent â†' solid ----
   const onScroll = () => {
     nav.classList.toggle('scrolled', window.scrollY > 60);
   };
