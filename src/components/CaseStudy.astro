@@ -145,9 +145,7 @@ const cases = [
               </div>
               <div class="relative z-10 text-center">
                 {c.logo ? (
-                  <div class="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-5 mx-auto overflow-hidden">
-                    <img src={c.logo} alt={c.client} class="w-full h-full object-cover" />
-                  </div>
+                  <img src={c.logo} alt={c.client} class="w-32 h-32 object-contain mx-auto mb-5 drop-shadow-lg" />
                 ) : (
                   <div class="w-24 h-24 rounded-2xl bg-white/20 flex items-center justify-center mb-5 mx-auto">
                     <span class="font-display font-800 text-3xl text-white">{c.client[0]}</span>
