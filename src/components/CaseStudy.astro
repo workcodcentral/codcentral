@@ -128,24 +128,24 @@ const cases = [
     <!-- Case studies grid -->
     <div class="space-y-10">
       {cases.map((c, i) => (
-        <div class="reveal rounded-3xl overflow-hidden bg-white border border-canvas-dark shadow-sm">
+        <div class="case-card reveal rounded-3xl overflow-hidden bg-white border border-canvas-dark shadow-sm cursor-pointer group">
           <div class="grid lg:grid-cols-2 gap-0">
 
             <!-- Visual panel -->
-            <div class={`bg-white relative min-h-[220px] flex flex-col items-center justify-center p-10 ${i % 2 !== 0 ? 'lg:order-2' : ''}`}>
+            <div class={`bg-white relative min-h-[220px] flex flex-col items-center justify-center p-10 border-b lg:border-b-0 ${i % 2 !== 0 ? 'lg:order-2 lg:border-l border-canvas-dark' : 'lg:border-r border-canvas-dark'}`}>
               <div class="relative z-10 text-center">
                 {c.logo ? (
-                  <img src={c.logo} alt={c.client} class="w-32 h-32 object-contain mx-auto mb-5 drop-shadow-lg" />
+                  <img src={c.logo} alt={c.client} class="w-32 h-32 object-contain mx-auto mb-5 drop-shadow-lg transition-transform duration-500 group-hover:scale-110" />
                 ) : (
-                  <div class="w-24 h-24 rounded-2xl bg-canvas border border-canvas-dark flex items-center justify-center mb-5 mx-auto">
+                  <div class="w-24 h-24 rounded-2xl bg-canvas border border-canvas-dark flex items-center justify-center mb-5 mx-auto transition-transform duration-500 group-hover:scale-110">
                     <span class="font-display font-800 text-3xl text-navy-500">{c.client[0]}</span>
                   </div>
                 )}
-                <div class="font-display font-800 text-2xl text-navy-500">{c.client}</div>
+                <div class="font-display font-800 text-2xl text-navy-500 transition-colors duration-300 group-hover:text-red-400">{c.client}</div>
                 <div class="font-body text-sm text-navy-400/60 mt-1">{c.campaign}</div>
                 <div class="flex flex-wrap justify-center gap-2 mt-4">
                   {c.tags.map(tag => (
-                    <span class="px-3 py-1 rounded-full bg-canvas border border-canvas-dark text-navy-500/70 font-body text-xs">{tag}</span>
+                    <span class="px-3 py-1 rounded-full bg-canvas border border-canvas-dark text-navy-500/70 font-body text-xs transition-all duration-300 group-hover:border-red-200 group-hover:bg-red-50 group-hover:text-red-400">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -156,9 +156,9 @@ const cases = [
               <!-- Outcomes grid -->
               <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
                 {c.outcomes.map(o => (
-                  <div class="bg-canvas rounded-xl p-3 text-center">
-                    <div class="font-display font-800 text-xl text-navy-500 leading-none">{o.metric}</div>
-                    <div class="font-body text-xs text-navy-400/60 mt-1 leading-tight">{o.label}</div>
+                  <div class="outcome-tile bg-canvas rounded-xl p-3 text-center transition-all duration-300 group-hover:bg-navy-500">
+                    <div class="font-display font-800 text-xl text-navy-500 leading-none transition-colors duration-300 group-hover:text-white outcome-metric">{o.metric}</div>
+                    <div class="font-body text-xs text-navy-400/60 mt-1 leading-tight transition-colors duration-300 group-hover:text-white/60 outcome-label">{o.label}</div>
                   </div>
                 ))}
               </div>
@@ -176,7 +176,7 @@ const cases = [
               </div>
 
               <!-- Quote -->
-              <blockquote class="border-l-2 border-canvas-dark pl-4">
+              <blockquote class="border-l-2 border-canvas-dark pl-4 transition-all duration-300 group-hover:border-red-400">
                 <p class="font-body text-sm text-navy-500 italic leading-relaxed">"{c.quote}"</p>
                 <footer class="mt-2 font-body text-xs text-navy-400/50">{c.attribution}</footer>
               </blockquote>
@@ -195,3 +195,19 @@ const cases = [
 
   </div>
 </section>
+
+<style>
+  .case-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .case-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px -10px rgba(13, 27, 42, 0.12);
+  }
+  .case-card:hover .outcome-tile {
+    transform: scale(1.04);
+  }
+  .outcome-tile {
+    transition: transform 0.25s ease, background-color 0.3s ease;
+  }
+</style>
