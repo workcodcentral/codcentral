@@ -1,0 +1,108 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Page — Shop" active="Shop">
+
+  <div class="page-header">
+    <div><div class="page-title">Shop</div><div class="page-sub">Manage shop products and pricing.</div></div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Product</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search products…" oninput="filterRows()" />
+    </div>
+  </div>
+
+  <div id="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px"></div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add Product</div>
+      <form id="shop-form">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-name" required /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Price (KES)</label><input class="form-input" type="number" id="f-price" /></div>
+          <div class="form-group"><label class="form-label">Category</label><input class="form-input" id="f-cat" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc"></textarea></div>
+        <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="f-image" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Stock</label><input class="form-input" type="number" id="f-stock" value="0" /></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="f-status"><option value="active">Active</option><option value="draft">Draft</option><option value="sold_out">Sold Out</option></select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'shop_products';
+      let rows = [];
+
+      async function load() {
+        const { data } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+        rows = data || []; render(rows);
+      }
+      function render(data) {
+        const grid = document.getElementById('products-grid');
+        if (!data.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>No products yet.</p></div>'; return; }
+        grid.innerHTML = data.map(r => `
+          <div class="card" style="overflow:hidden">
+            ${r.image_url
+              ? `<img src="${r.image_url}" style="width:100%;height:150px;object-fit:cover" loading="lazy" />`
+              : `<div style="width:100%;height:150px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">No image</div>`}
+            <div style="padding:14px">
+              <div style="font-weight:700;font-size:13px;margin-bottom:2px">${r.name}</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${r.category || ''}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                <span style="font-weight:800;font-size:15px">KES ${Number(r.price || 0).toLocaleString()}</span>
+                <span class="badge ${r.status === 'active' ? 'badge-green' : r.status === 'sold_out' ? 'badge-red' : 'badge-yellow'}">${r.status}</span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+              </div>
+            </div>
+          </div>`).join('');
+      }
+      window.filterRows = () => { const q = document.getElementById('search').value.toLowerCase(); render(rows.filter(r => r.name.toLowerCase().includes(q))); };
+      window.openModal = (id = null) => { document.getElementById('modal-title').textContent = id ? 'Edit Product' : 'Add Product'; document.getElementById('edit-id').value = id || ''; if (!id) document.getElementById('shop-form').reset(); document.getElementById('modal').classList.add('open'); };
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id); if (!r) return;
+        document.getElementById('f-name').value  = r.name        || '';
+        document.getElementById('f-price').value = r.price       || 0;
+        document.getElementById('f-cat').value   = r.category    || '';
+        document.getElementById('f-desc').value  = r.description || '';
+        document.getElementById('f-image').value = r.image_url   || '';
+        document.getElementById('f-stock').value = r.stock       || 0;
+        document.getElementById('f-status').value= r.status      || 'active';
+        window.openModal(id);
+      };
+      window.deleteRow = async (id) => { if (!confirm('Delete product?')) return; await sb.from(TABLE).delete().eq('id', id); window.showToast('Deleted.'); load(); };
+      window.closeModal = () => document.getElementById('modal').classList.remove('open');
+      document.getElementById('shop-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value;
+        const payload = { name: document.getElementById('f-name').value, price: parseFloat(document.getElementById('f-price').value) || 0, category: document.getElementById('f-cat').value, description: document.getElementById('f-desc').value, image_url: document.getElementById('f-image').value, stock: parseInt(document.getElementById('f-stock').value) || 0, status: document.getElementById('f-status').value };
+        if (id) { await sb.from(TABLE).update(payload).eq('id', id); window.showToast('Updated.'); }
+        else    { await sb.from(TABLE).insert(payload); window.showToast('Added.'); }
+        window.closeModal(); load();
+      });
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

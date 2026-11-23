@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  // Exclude admin pages from Tailwind preflight to prevent overriding dashboard CSS
+  corePlugins: {
+    preflight: true,
+  },
   theme: {
     extend: {
       colors: {

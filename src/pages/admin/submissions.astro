@@ -1,0 +1,225 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Contact Submissions" active="Submissions">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Contact Submissions</div>
+      <div class="page-sub">Enquiries submitted through the website contact form.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <span class="badge badge-red" id="new-count" style="font-size:13px;padding:6px 12px">— new</span>
+      <button class="btn btn-secondary" onclick="load()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search by name, email, company…" oninput="filterRows()" />
+    </div>
+    <select class="form-select" style="width:160px" id="status-filter" onchange="filterRows()">
+      <option value="">All statuses</option>
+      <option value="new">New</option>
+      <option value="read">Read</option>
+      <option value="replied">Replied</option>
+      <option value="archived">Archived</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Company</th>
+            <th>Service</th>
+            <th>Budget</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="submissions-tbody">
+          <tr><td colspan="8"><div class="empty-state"><p>Loading…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail drawer / modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal" style="max-width:600px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div class="modal-title" style="margin-bottom:0" id="modal-name">Submission</div>
+        <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">✕</button>
+      </div>
+
+      <!-- Contact info row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Email</div>
+          <div id="d-email" style="font-size:13px;color:var(--text)"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Company</div>
+          <div id="d-company" style="font-size:13px;color:var(--text)"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Service Interest</div>
+          <div id="d-service" style="font-size:13px;color:var(--text)"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Monthly Budget</div>
+          <div id="d-budget" style="font-size:13px;color:var(--text)"></div>
+        </div>
+      </div>
+
+      <!-- Brief -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Their Goals</div>
+        <div id="d-brief" style="font-size:13px;color:var(--text);line-height:1.6;padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)"></div>
+      </div>
+
+      <!-- Status update -->
+      <div style="display:flex;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">Update status:</span>
+        <select class="form-select" id="d-status-select" style="width:160px">
+          <option value="new">New</option>
+          <option value="read">Read</option>
+          <option value="replied">Replied</option>
+          <option value="archived">Archived</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="updateStatus()">Save</button>
+        <a id="d-reply-link" href="" class="btn btn-secondary btn-sm" style="margin-left:auto">
+          Reply via email
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'contact_submissions';
+      let rows = [];
+      let activeId = null;
+
+      window.load = async () => {
+        const { data, error } = await sb
+          .from(TABLE)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          document.getElementById('submissions-tbody').innerHTML =
+            `<tr><td colspan="8"><div class="empty-state"><p style="color:#f87171">Error: ${error.message}</p></div></td></tr>`;
+          return;
+        }
+
+        rows = data || [];
+        const newCount = rows.filter(r => r.status === 'new').length;
+        document.getElementById('new-count').textContent = `${newCount} new`;
+        render(rows);
+      };
+
+      function render(data) {
+        const tbody = document.getElementById('submissions-tbody');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>No submissions yet.</p></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(r => `
+          <tr style="${r.status === 'new' ? 'font-weight:600' : ''}">
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                ${r.status === 'new' ? '<span style="width:7px;height:7px;border-radius:50%;background:#E8382A;flex-shrink:0;display:inline-block"></span>' : '<span style="width:7px;height:7px;flex-shrink:0;display:inline-block"></span>'}
+                ${r.name}
+              </div>
+            </td>
+            <td style="color:var(--muted)">${r.email}</td>
+            <td style="color:var(--muted)">${r.company || '—'}</td>
+            <td><span class="badge badge-blue">${r.service || '—'}</span></td>
+            <td style="color:var(--muted);white-space:nowrap;font-size:12px">${r.budget || '—'}</td>
+            <td>
+              <span class="badge ${
+                r.status === 'new'      ? 'badge-red'    :
+                r.status === 'replied'  ? 'badge-green'  :
+                r.status === 'read'     ? 'badge-blue'   : 'badge-gray'
+              }">${r.status}</span>
+            </td>
+            <td style="color:var(--muted);white-space:nowrap;font-size:12px">
+              ${new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="openDetail('${r.id}')">View</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      window.filterRows = () => {
+        const q = document.getElementById('search').value.toLowerCase();
+        const s = document.getElementById('status-filter').value;
+        render(rows.filter(r =>
+          (r.name + r.email + (r.company || '')).toLowerCase().includes(q) &&
+          (s ? r.status === s : true)
+        ));
+      };
+
+      window.openDetail = (id) => {
+        const r = rows.find(x => x.id === id);
+        if (!r) return;
+        activeId = id;
+        document.getElementById('modal-name').textContent   = r.name;
+        document.getElementById('d-email').textContent      = r.email;
+        document.getElementById('d-company').textContent    = r.company    || '—';
+        document.getElementById('d-service').textContent    = r.service    || '—';
+        document.getElementById('d-budget').textContent     = r.budget     || '—';
+        document.getElementById('d-brief').textContent      = r.brief      || '—';
+        document.getElementById('d-status-select').value    = r.status     || 'new';
+        document.getElementById('d-reply-link').href        = `mailto:${r.email}?subject=Re: Your enquiry to Codcentral Studios&body=Hi ${r.name.split(' ')[0]},%0D%0A%0D%0A`;
+        document.getElementById('modal').classList.add('open');
+
+        // Auto-mark as read if new
+        if (r.status === 'new') {
+          sb.from(TABLE).update({ status: 'read' }).eq('id', id).then(() => {
+            const row = rows.find(x => x.id === id);
+            if (row) row.status = 'read';
+            document.getElementById('d-status-select').value = 'read';
+            const newCount = rows.filter(x => x.status === 'new').length;
+            document.getElementById('new-count').textContent = `${newCount} new`;
+          });
+        }
+      };
+
+      window.updateStatus = async () => {
+        if (!activeId) return;
+        const status = document.getElementById('d-status-select').value;
+        const { error } = await sb.from(TABLE).update({ status }).eq('id', activeId);
+        if (error) { window.showToast('Failed to update status.'); return; }
+        const row = rows.find(x => x.id === activeId);
+        if (row) row.status = status;
+        const newCount = rows.filter(x => x.status === 'new').length;
+        document.getElementById('new-count').textContent = `${newCount} new`;
+        window.showToast('Status updated.');
+        render(rows);
+      };
+
+      window.closeModal = () => {
+        document.getElementById('modal').classList.remove('open');
+        activeId = null;
+      };
+
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

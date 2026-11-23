@@ -1,0 +1,115 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Users" active="Users">
+
+  <div class="page-header">
+    <div><div class="page-title">Users</div><div class="page-sub">Manage admin and editor accounts.</div></div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add User</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search users…" oninput="filterRows()" />
+    </div>
+    <select class="form-select" style="width:140px" id="role-filter" onchange="filterRows()">
+      <option value="">All roles</option><option value="admin">Admin</option><option value="editor">Editor</option><option value="viewer">Viewer</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody id="users-tbody"><tr><td colspan="6"><div class="empty-state"><p>Loading…</p></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add User</div>
+      <form id="users-form">
+        <input type="hidden" id="edit-id" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="f-name" required /></div>
+          <div class="form-group"><label class="form-label">Email *</label><input class="form-input" type="email" id="f-email" required /></div>
+          <div class="form-group"><label class="form-label">Role</label>
+            <select class="form-select" id="f-role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="f-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Avatar URL</label><input class="form-input" id="f-avatar" /></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'users';
+      let rows = [];
+
+      async function load() {
+        const { data } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+        rows = data || []; render(rows);
+      }
+      function render(data) {
+        const tbody = document.getElementById('users-tbody');
+        if (!data.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No users yet.</p></div></td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                ${r.avatar_url
+                  ? `<img src="${r.avatar_url}" style="width:30px;height:30px;border-radius:50%;object-fit:cover" />`
+                  : `<div style="width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${r.name ? r.name[0].toUpperCase() : '?'}</div>`}
+                <span style="font-weight:600">${r.name}</span>
+              </div>
+            </td>
+            <td style="color:var(--muted)">${r.email}</td>
+            <td><span class="badge ${r.role === 'admin' ? 'badge-red' : r.role === 'editor' ? 'badge-blue' : 'badge-gray'}">${r.role || 'viewer'}</span></td>
+            <td><span class="badge ${r.status === 'active' ? 'badge-green' : 'badge-gray'}">${r.status || 'active'}</span></td>
+            <td style="color:var(--muted);white-space:nowrap">${new Date(r.created_at).toLocaleDateString()}</td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Remove</button>
+            </td>
+          </tr>`).join('');
+      }
+      window.filterRows = () => { const q = document.getElementById('search').value.toLowerCase(); const r = document.getElementById('role-filter').value; render(rows.filter(x => (x.name || '').toLowerCase().includes(q) && (r ? x.role === r : true))); };
+      window.openModal = (id = null) => { document.getElementById('modal-title').textContent = id ? 'Edit User' : 'Add User'; document.getElementById('edit-id').value = id || ''; if (!id) document.getElementById('users-form').reset(); document.getElementById('modal').classList.add('open'); };
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id); if (!r) return;
+        document.getElementById('f-name').value   = r.name       || '';
+        document.getElementById('f-email').value  = r.email      || '';
+        document.getElementById('f-role').value   = r.role       || 'viewer';
+        document.getElementById('f-status').value = r.status     || 'active';
+        document.getElementById('f-avatar').value = r.avatar_url || '';
+        window.openModal(id);
+      };
+      window.deleteRow = async (id) => { if (!confirm('Remove this user?')) return; await sb.from(TABLE).delete().eq('id', id); window.showToast('User removed.'); load(); };
+      window.closeModal = () => document.getElementById('modal').classList.remove('open');
+      document.getElementById('users-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value;
+        const payload = { name: document.getElementById('f-name').value, email: document.getElementById('f-email').value, role: document.getElementById('f-role').value, status: document.getElementById('f-status').value, avatar_url: document.getElementById('f-avatar').value };
+        if (id) { await sb.from(TABLE).update(payload).eq('id', id); window.showToast('Updated.'); }
+        else    { await sb.from(TABLE).insert(payload); window.showToast('User added.'); }
+        window.closeModal(); load();
+      });
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

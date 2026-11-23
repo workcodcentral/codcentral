@@ -1,0 +1,117 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Overview" active="Overview">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Good morning 👋</div>
+      <div class="page-sub">Here's what's happening with your site today.</div>
+    </div>
+    <a href="/" target="_blank" class="btn btn-secondary">↗ View live site</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">News Articles</div><div class="stat-value" id="s-news">—</div><div class="stat-sub">Published</div></div>
+    <div class="stat-card"><div class="stat-label">Blogs</div><div class="stat-value" id="s-blogs">—</div><div class="stat-sub">Published</div></div>
+    <div class="stat-card"><div class="stat-label">Newsletters</div><div class="stat-value" id="s-nl">—</div><div class="stat-sub">Sent</div></div>
+    <div class="stat-card"><div class="stat-label">Photos</div><div class="stat-value" id="s-photos">—</div><div class="stat-sub">In library</div></div>
+    <div class="stat-card"><div class="stat-label">Videos</div><div class="stat-value" id="s-videos">—</div><div class="stat-sub">In library</div></div>
+    <div class="stat-card"><div class="stat-label">Events</div><div class="stat-value" id="s-events">—</div><div class="stat-sub">Upcoming</div></div>
+    <div class="stat-card"><div class="stat-label">Interns</div><div class="stat-value" id="s-interns">—</div><div class="stat-sub">Active</div></div>
+    <div class="stat-card"><div class="stat-label">Users</div><div class="stat-value" id="s-users">—</div><div class="stat-sub">Registered</div></div>
+  </div>
+
+  <!-- Bottom panels -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)">Quick links</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        {[
+          ['Add News Article', '/admin/news'],
+          ['Write a Blog Post', '/admin/blogs'],
+          ['Upload Photos',     '/admin/photos'],
+          ['Create Event',      '/admin/events'],
+          ['Manage Users',      '/admin/users'],
+        ].map(([label, href]) => (
+          <a href={href} class="quick-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            {label}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)">System status</div>
+      <div id="sys-status" style="font-size:13px;color:var(--muted)">Checking connection…</div>
+    </div>
+
+  </div>
+
+  <style>
+    .quick-link {
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .quick-link:hover { background: var(--border); border-color: var(--muted); }
+  </style>
+
+  <script define:vars={{ supabaseUrl, supabaseKey }}>
+    (async () => {
+      const statusEl = document.getElementById('sys-status');
+
+      if (!supabaseUrl || supabaseUrl === 'your_supabase_project_url') {
+        statusEl.innerHTML = '<span class="badge badge-yellow">⚠ Supabase not configured — add keys to .env</span>';
+        ['news','blogs','nl','photos','videos','events','interns','users'].forEach(k => {
+          const el = document.getElementById('s-' + k);
+          if (el) el.textContent = '0';
+        });
+        return;
+      }
+
+      try {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const sb = createClient(supabaseUrl, supabaseKey);
+
+        const counts = [
+          ['s-news',    'news_articles', 'status', 'published'],
+          ['s-blogs',   'blogs',         'status', 'published'],
+          ['s-nl',      'newsletters',   'status', 'sent'],
+          ['s-photos',  'photos',        null,     null],
+          ['s-videos',  'videos',        null,     null],
+          ['s-events',  'events',        'status', 'upcoming'],
+          ['s-interns', 'interns',       'status', 'active'],
+          ['s-users',   'users',         null,     null],
+        ];
+
+        for (const [elId, table, col, val] of counts) {
+          let q = sb.from(table).select('*', { count: 'exact', head: true });
+          if (col) q = q.eq(col, val);
+          const { count } = await q;
+          const el = document.getElementById(elId);
+          if (el) el.textContent = String(count ?? 0);
+        }
+
+        statusEl.innerHTML = '<span class="badge badge-green">● Supabase connected</span>';
+      } catch (err) {
+        statusEl.innerHTML = '<span class="badge badge-red">✕ Connection failed — check .env keys</span>';
+      }
+    })();
+  </script>
+
+</DashboardLayout>

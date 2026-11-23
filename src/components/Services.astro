@@ -48,12 +48,18 @@ const tabs = [
 ];
 ---
 
-<section id="services" class="section-pad bg-canvas">
-  <div class="container-site">
+<section id="services" class="section-pad relative overflow-hidden">
+  <!-- Background image -->
+  <div class="absolute inset-0 z-0">
+    <img src="/servicepagebg.webp" alt="" class="w-full h-full object-cover" aria-hidden="true" />
+    <div class="absolute inset-0 bg-navy-500/80"></div>
+  </div>
+
+  <div class="container-site relative z-10">
     <!-- Header -->
     <div class="reveal max-w-2xl mb-14">
-      <span class="eyebrow mb-4">What we do</span>
-      <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+      <span class="eyebrow mb-4 !text-white/60 before:bg-white/40">What we do</span>
+      <h2 class="font-display font-800 text-display-lg text-white text-balance">
         How we grow your brand
       </h2>
     </div>
@@ -66,7 +72,7 @@ const tabs = [
           aria-selected={i === 0 ? 'true' : 'false'}
           aria-controls={`panel-${tab.id}`}
           id={`tab-${tab.id}`}
-          class={`tab-btn flex items-center gap-2 px-5 py-2.5 rounded-full font-body font-600 text-sm transition-all duration-200 border border-canvas-dark hover:border-navy-500 ${i === 0 ? 'active' : 'text-navy-400 bg-white'}`}
+          class={`tab-btn flex items-center gap-2 px-5 py-2.5 rounded-full font-body font-600 text-sm transition-all duration-200 border border-white/20 hover:border-white ${i === 0 ? 'active !bg-white !text-navy-500' : 'text-white/70 bg-white/10'}`}
           data-tab={tab.id}
         >
           <span set:html={tab.icon} />
@@ -86,20 +92,20 @@ const tabs = [
       >
         <!-- Panel intro -->
         <div class="mb-10 max-w-2xl">
-          <h3 class="font-display font-700 text-display-sm text-navy-500 mb-3">{tab.headline}</h3>
-          <p class="font-body text-base text-navy-400/70 leading-relaxed">{tab.sub}</p>
+          <h3 class="font-display font-700 text-display-sm text-white mb-3">{tab.headline}</h3>
+          <p class="font-body text-base text-white/60 leading-relaxed">{tab.sub}</p>
         </div>
 
-        <!-- Service grid -->
-        <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Service grid — 3 cols × 2 rows, left-aligned -->
+        <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tab.services.map((s, j) => (
-            <div class="card group cursor-default">
+            <div class="group cursor-default border border-white/10 bg-white/5 backdrop-blur-sm p-6 hover:bg-white/10 transition-all duration-200">
               <div class="flex items-start justify-between mb-4">
                 <span class="font-body font-700 text-xs text-red-400 tracking-widest uppercase">0{j + 1}</span>
-                <svg class="text-navy-100 group-hover:text-red-400 transition-colors duration-200" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg class="text-white/20 group-hover:text-red-400 transition-colors duration-200" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </div>
-              <h4 class="font-display font-700 text-base text-navy-500 mb-2">{s.name}</h4>
-              <p class="font-body text-sm text-navy-400/65 leading-relaxed">{s.desc}</p>
+              <h4 class="font-display font-700 text-base text-white mb-2">{s.name}</h4>
+              <p class="font-body text-sm text-white/55 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -117,13 +123,13 @@ const tabs = [
       const target = btn.dataset.tab!;
 
       buttons.forEach((b) => {
-        b.classList.remove('active');
+        b.classList.remove('active', '!bg-white', '!text-navy-500');
         b.setAttribute('aria-selected', 'false');
-        b.classList.add('text-navy-400', 'bg-white');
+        b.classList.add('text-white/70', 'bg-white/10');
       });
-      btn.classList.add('active');
+      btn.classList.add('active', '!bg-white', '!text-navy-500');
       btn.setAttribute('aria-selected', 'true');
-      btn.classList.remove('text-navy-400', 'bg-white');
+      btn.classList.remove('text-white/70', 'bg-white/10');
 
       panels.forEach((p) => {
         const isMatch = p.dataset.panel === target;

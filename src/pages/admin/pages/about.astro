@@ -1,0 +1,93 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Page — About Us" active="About Us">
+
+  <div class="page-header">
+    <div><div class="page-title">About Us Page</div><div class="page-sub">Edit the About page hero, story, and team.</div></div>
+    <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
+  </div>
+
+  <div style="display:grid;gap:16px">
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">Hero</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Eyebrow</label><input class="form-input" id="hero_eyebrow" /></div>
+        <div class="form-group"><label class="form-label">Headline</label><input class="form-input" id="hero_headline" /></div>
+      </div>
+      <div class="form-group"><label class="form-label">Sub-text</label><textarea class="form-textarea" id="hero_sub"></textarea></div>
+    </div>
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">Our Story</div>
+      <div class="form-group"><label class="form-label">Heading</label><input class="form-input" id="story_heading" /></div>
+      <div class="form-group"><label class="form-label">Paragraph 1</label><textarea class="form-textarea" id="story_p1"></textarea></div>
+      <div class="form-group"><label class="form-label">Paragraph 2</label><textarea class="form-textarea" id="story_p2"></textarea></div>
+      <div class="form-group"><label class="form-label">Team Image URL</label><input class="form-input" id="team_image" /></div>
+    </div>
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">Team Members</div>
+      <div id="team-wrap"></div>
+      <button class="btn btn-secondary btn-sm" onclick="addMember()" style="margin-top:4px">+ Add Member</button>
+    </div>
+
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    let team = [];
+
+    (async () => {
+      if (!sbUrl || sbUrl === 'your_supabase_project_url') return;
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+
+      const { data } = await sb.from('page_content').select('*').eq('page', 'about').maybeSingle();
+      if (data?.content) {
+        const c = data.content;
+        document.getElementById('hero_eyebrow').value  = c.hero_eyebrow  || '';
+        document.getElementById('hero_headline').value = c.hero_headline || '';
+        document.getElementById('hero_sub').value      = c.hero_sub      || '';
+        document.getElementById('story_heading').value = c.story_heading || '';
+        document.getElementById('story_p1').value      = c.story_p1      || '';
+        document.getElementById('story_p2').value      = c.story_p2      || '';
+        document.getElementById('team_image').value    = c.team_image    || '';
+        team = c.team || [];
+        renderTeam();
+      }
+
+      window.saveAll = async () => {
+        const content = {
+          hero_eyebrow:  document.getElementById('hero_eyebrow').value,
+          hero_headline: document.getElementById('hero_headline').value,
+          hero_sub:      document.getElementById('hero_sub').value,
+          story_heading: document.getElementById('story_heading').value,
+          story_p1:      document.getElementById('story_p1').value,
+          story_p2:      document.getElementById('story_p2').value,
+          team_image:    document.getElementById('team_image').value,
+          team,
+        };
+        await sb.from('page_content').upsert({ page: 'about', content }, { onConflict: 'page' });
+        window.showToast('About page saved!');
+      };
+    })();
+
+    function renderTeam() {
+      document.getElementById('team-wrap').innerHTML = team.map((m, i) => `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px">
+          <input class="form-input" value="${m.name   || ''}" placeholder="Name"       oninput="team[${i}].name=this.value" />
+          <input class="form-input" value="${m.role   || ''}" placeholder="Role"       oninput="team[${i}].role=this.value" />
+          <input class="form-input" value="${m.avatar || ''}" placeholder="Avatar URL" oninput="team[${i}].avatar=this.value" />
+          <button class="btn btn-danger btn-sm" onclick="removeMember(${i})">✕</button>
+        </div>`).join('');
+    }
+
+    window.addMember    = () => { team.push({ name: '', role: '', avatar: '' }); renderTeam(); };
+    window.removeMember = (i) => { team.splice(i, 1); renderTeam(); };
+    if (!window.saveAll) window.saveAll = () => window.showToast('Configure Supabase in .env first.');
+  </script>
+
+</DashboardLayout>

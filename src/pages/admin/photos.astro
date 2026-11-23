@@ -1,0 +1,336 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Photos" active="Photos">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Photos</div>
+      <div class="page-sub">Upload and manage the site photo library.</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Upload Photo</button>
+  </div>
+
+  <!-- Error banner -->
+  <div id="page-error" style="display:none;padding:12px 16px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:8px;color:#f87171;font-size:13px;margin-bottom:16px"></div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search by title…" oninput="filterPhotos()" />
+    </div>
+    <select class="form-select" style="width:160px" id="cat-filter" onchange="filterPhotos()">
+      <option value="">All categories</option>
+      <option value="team">Team</option>
+      <option value="events">Events</option>
+      <option value="clients">Clients</option>
+      <option value="office">Office</option>
+    </select>
+    <div style="display:flex;gap:4px;margin-left:auto">
+      <button class="btn btn-secondary btn-sm" id="btn-grid" onclick="setView('grid')" style="background:var(--border)">⊞ Grid</button>
+      <button class="btn btn-secondary btn-sm" id="btn-list" onclick="setView('list')">☰ List</button>
+    </div>
+  </div>
+
+  <!-- Grid view -->
+  <div id="photos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px"></div>
+
+  <!-- List view -->
+  <div id="photos-list" style="display:none">
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Preview</th><th>Title</th><th>Category</th><th>Alt Text</th><th>Added</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="photos-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div class="modal-title" style="margin-bottom:0" id="modal-title">Upload Photo</div>
+        <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">✕</button>
+      </div>
+
+      <!-- Modal error -->
+      <div id="modal-error" style="display:none;padding:10px 14px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:6px;color:#f87171;font-size:13px;margin-bottom:14px"></div>
+
+      <form id="photos-form">
+        <input type="hidden" id="edit-id" />
+
+        <div class="form-group">
+          <label class="form-label">Image URL *</label>
+          <input class="form-input" id="f-url" placeholder="Paste any image URL or Supabase Storage URL" required />
+        </div>
+
+        <!-- Live preview -->
+        <div id="url-preview" style="display:none;margin-bottom:16px">
+          <img id="url-preview-img" src="" alt="Preview"
+            style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"
+            onerror="this.parentElement.style.display='none'"
+          />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="f-title" placeholder="Photo title" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alt Text <span style="font-weight:400;color:var(--muted)">(accessibility)</span></label>
+            <input class="form-input" id="f-alt" placeholder="Describe the image" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="f-category">
+            <option value="">Select category…</option>
+            <option value="team">Team</option>
+            <option value="events">Events</option>
+            <option value="clients">Clients</option>
+            <option value="office">Office</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Caption</label>
+          <textarea class="form-textarea" id="f-caption" style="min-height:70px" placeholder="Optional caption…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Photo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'photos';
+      let rows = [];
+      let currentView = 'grid';
+
+      function showPageError(msg) {
+        const el = document.getElementById('page-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+      }
+
+      function showModalError(msg) {
+        const el = document.getElementById('modal-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+      }
+
+      function hideModalError() {
+        document.getElementById('modal-error').style.display = 'none';
+      }
+
+      async function load() {
+        const { data, error } = await sb
+          .from(TABLE)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          showPageError('Failed to load photos: ' + error.message);
+          document.getElementById('photos-grid').innerHTML =
+            '<div class="empty-state" style="grid-column:1/-1"><p style="color:#f87171">Could not load data.</p></div>';
+          return;
+        }
+
+        rows = data || [];
+        renderGrid(rows);
+        renderList(rows);
+      }
+
+      function renderGrid(data) {
+        const el = document.getElementById('photos-grid');
+        if (!data.length) {
+          el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>No photos yet. Click <strong>+ Upload Photo</strong> to add one.</p></div>';
+          return;
+        }
+        el.innerHTML = data.map(r => `
+          <div class="photo-card" data-id="${r.id}"
+            style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--bg3);aspect-ratio:1;cursor:pointer">
+            <img src="${r.url}" alt="${r.alt_text || r.title || ''}"
+              style="width:100%;height:100%;object-fit:cover"
+              loading="lazy"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--muted);font-size:12px;position:absolute;inset:0">
+              Image not found
+            </div>
+            <div class="photo-hover"
+              style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;display:flex;align-items:flex-end">
+              <div class="photo-btns"
+                style="opacity:0;padding:8px;width:100%;transition:opacity 0.2s;display:flex;gap:6px">
+                <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+              </div>
+            </div>
+            ${r.category ? `<span class="badge badge-blue" style="position:absolute;top:6px;left:6px;pointer-events:none">${r.category}</span>` : ''}
+          </div>`).join('');
+
+        // Attach hover events after render
+        el.querySelectorAll('.photo-card').forEach(card => {
+          const hover = card.querySelector('.photo-hover');
+          const btns  = card.querySelector('.photo-btns');
+          card.addEventListener('mouseenter', () => {
+            hover.style.background = 'rgba(0,0,0,0.55)';
+            btns.style.opacity = '1';
+          });
+          card.addEventListener('mouseleave', () => {
+            hover.style.background = 'rgba(0,0,0,0)';
+            btns.style.opacity = '0';
+          });
+        });
+      }
+
+      function renderList(data) {
+        const tbody = document.getElementById('photos-tbody');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No photos yet.</p></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td>
+              <img src="${r.url}" alt="${r.alt_text || ''}"
+                style="width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"
+                onerror="this.style.opacity='0.3'" />
+            </td>
+            <td style="font-weight:600">${r.title || '—'}</td>
+            <td><span class="badge badge-blue">${r.category || '—'}</span></td>
+            <td style="color:var(--muted);font-size:12px">${r.alt_text || '—'}</td>
+            <td style="color:var(--muted);white-space:nowrap;font-size:12px">
+              ${new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}
+            </td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      // URL live preview
+      document.getElementById('f-url').addEventListener('input', (e) => {
+        const url = e.target.value.trim();
+        const preview = document.getElementById('url-preview');
+        const img     = document.getElementById('url-preview-img');
+        if (url) { img.src = url; preview.style.display = 'block'; }
+        else      { preview.style.display = 'none'; }
+      });
+
+      window.setView = (v) => {
+        currentView = v;
+        document.getElementById('photos-grid').style.display = v === 'grid' ? 'grid' : 'none';
+        document.getElementById('photos-list').style.display = v === 'list' ? 'block' : 'none';
+        document.getElementById('btn-grid').style.background = v === 'grid' ? 'var(--border)' : '';
+        document.getElementById('btn-list').style.background = v === 'list' ? 'var(--border)' : '';
+      };
+
+      window.filterPhotos = () => {
+        const q = document.getElementById('search').value.toLowerCase();
+        const c = document.getElementById('cat-filter').value;
+        const filtered = rows.filter(r =>
+          (r.title || r.alt_text || '').toLowerCase().includes(q) &&
+          (c ? r.category === c : true)
+        );
+        renderGrid(filtered);
+        renderList(filtered);
+      };
+
+      window.openModal = (id = null) => {
+        document.getElementById('modal-title').textContent = id ? 'Edit Photo' : 'Upload Photo';
+        document.getElementById('edit-id').value = id || '';
+        document.getElementById('save-btn').textContent = id ? 'Update Photo' : 'Save Photo';
+        document.getElementById('url-preview').style.display = 'none';
+        hideModalError();
+        if (!id) document.getElementById('photos-form').reset();
+        document.getElementById('modal').classList.add('open');
+      };
+
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('f-url').value      = r.url      || '';
+        document.getElementById('f-title').value    = r.title    || '';
+        document.getElementById('f-alt').value      = r.alt_text || '';
+        document.getElementById('f-category').value = r.category || '';
+        document.getElementById('f-caption').value  = r.caption  || '';
+        if (r.url) {
+          document.getElementById('url-preview-img').src = r.url;
+          document.getElementById('url-preview').style.display = 'block';
+        }
+        window.openModal(id);
+      };
+
+      window.deleteRow = async (id) => {
+        if (!confirm('Delete this photo? This cannot be undone.')) return;
+        const { error } = await sb.from(TABLE).delete().eq('id', id);
+        if (error) { window.showToast('Delete failed: ' + error.message); return; }
+        window.showToast('Photo deleted.');
+        load();
+      };
+
+      window.closeModal = () => {
+        document.getElementById('modal').classList.remove('open');
+        hideModalError();
+      };
+
+      document.getElementById('photos-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideModalError();
+
+        const url = document.getElementById('f-url').value.trim();
+        if (!url) { showModalError('Image URL is required.'); return; }
+
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.textContent = 'Saving…';
+
+        const id = document.getElementById('edit-id').value;
+        const payload = {
+          url,
+          title:    document.getElementById('f-title').value.trim()   || null,
+          alt_text: document.getElementById('f-alt').value.trim()      || null,
+          category: document.getElementById('f-category').value         || null,
+          caption:  document.getElementById('f-caption').value.trim()  || null,
+        };
+
+        let error;
+        if (id) {
+          ({ error } = await sb.from(TABLE).update(payload).eq('id', id));
+        } else {
+          ({ error } = await sb.from(TABLE).insert(payload));
+        }
+
+        saveBtn.removeAttribute('disabled');
+        saveBtn.textContent = id ? 'Update Photo' : 'Save Photo';
+
+        if (error) {
+          showModalError('Save failed: ' + error.message);
+          return;
+        }
+
+        window.showToast(id ? 'Photo updated ✓' : 'Photo saved ✓');
+        window.closeModal();
+        load();
+      });
+
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

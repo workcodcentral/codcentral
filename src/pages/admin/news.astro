@@ -1,0 +1,164 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Industry News" active="Industry News">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Industry News</div>
+      <div class="page-sub">Manage news articles displayed on the website.</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Article</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search articles…" oninput="filterRows()" />
+    </div>
+    <select class="form-select" style="width:160px" id="status-filter" onchange="filterRows()">
+      <option value="">All statuses</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Category</th><th>Author</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="news-tbody">
+          <tr><td colspan="6"><div class="empty-state"><p>Loading…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add Article</div>
+      <form id="news-form">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-title" required /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Category</label><input class="form-input" id="f-category" placeholder="e.g. Marketing" /></div>
+          <div class="form-group"><label class="form-label">Author</label><input class="form-input" id="f-author" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Excerpt</label><textarea class="form-textarea" id="f-excerpt"></textarea></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea class="form-textarea" id="f-content" style="min-height:140px"></textarea></div>
+        <div class="form-group"><label class="form-label">Cover Image URL</label><input class="form-input" id="f-image" /></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'news_articles';
+      let rows = [];
+
+      async function load() {
+        const { data } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+        rows = data || [];
+        render(rows);
+      }
+
+      function render(data) {
+        const tbody = document.getElementById('news-tbody');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No articles yet. Click <strong>+ Add Article</strong> to create one.</p></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td style="font-weight:600;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</td>
+            <td><span class="badge badge-blue">${r.category || '—'}</span></td>
+            <td style="color:var(--muted)">${r.author || '—'}</td>
+            <td><span class="badge ${r.status === 'published' ? 'badge-green' : 'badge-yellow'}">${r.status}</span></td>
+            <td style="white-space:nowrap;color:var(--muted)">${new Date(r.created_at).toLocaleDateString()}</td>
+            <td style="white-space:nowrap;display:flex;gap:6px">
+              <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      window.filterRows = () => {
+        const q = document.getElementById('search').value.toLowerCase();
+        const s = document.getElementById('status-filter').value;
+        render(rows.filter(r => r.title.toLowerCase().includes(q) && (s ? r.status === s : true)));
+      };
+
+      window.openModal = (id = null) => {
+        document.getElementById('modal-title').textContent = id ? 'Edit Article' : 'Add Article';
+        document.getElementById('edit-id').value = id || '';
+        if (!id) document.getElementById('news-form').reset();
+        document.getElementById('modal').classList.add('open');
+      };
+
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('f-title').value    = r.title     || '';
+        document.getElementById('f-category').value = r.category  || '';
+        document.getElementById('f-author').value   = r.author    || '';
+        document.getElementById('f-excerpt').value  = r.excerpt   || '';
+        document.getElementById('f-content').value  = r.content   || '';
+        document.getElementById('f-image').value    = r.image_url || '';
+        document.getElementById('f-status').value   = r.status    || 'draft';
+        window.openModal(id);
+      };
+
+      window.deleteRow = async (id) => {
+        if (!confirm('Delete this article?')) return;
+        await sb.from(TABLE).delete().eq('id', id);
+        window.showToast('Article deleted.');
+        load();
+      };
+
+      window.closeModal = () => document.getElementById('modal').classList.remove('open');
+
+      document.getElementById('news-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value;
+        const payload = {
+          title:     document.getElementById('f-title').value,
+          category:  document.getElementById('f-category').value,
+          author:    document.getElementById('f-author').value,
+          excerpt:   document.getElementById('f-excerpt').value,
+          content:   document.getElementById('f-content').value,
+          image_url: document.getElementById('f-image').value,
+          status:    document.getElementById('f-status').value,
+        };
+        if (id) {
+          await sb.from(TABLE).update(payload).eq('id', id);
+          window.showToast('Article updated.');
+        } else {
+          await sb.from(TABLE).insert(payload);
+          window.showToast('Article created.');
+        }
+        window.closeModal();
+        load();
+      });
+
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

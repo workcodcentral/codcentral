@@ -1,0 +1,111 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Videos" active="Videos">
+
+  <div class="page-header">
+    <div><div class="page-title">Videos</div><div class="page-sub">Manage video content — YouTube, Vimeo, or direct links.</div></div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Video</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search videos…" oninput="filterRows()" />
+    </div>
+  </div>
+
+  <div id="videos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px"></div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add Video</div>
+      <form id="videos-form">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-title" required /></div>
+        <div class="form-group"><label class="form-label">Video URL *</label><input class="form-input" id="f-url" placeholder="https://youtube.com/watch?v=…" required /></div>
+        <div class="form-group"><label class="form-label">Thumbnail URL</label><input class="form-input" id="f-thumb" /></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Category</label><input class="form-input" id="f-category" /></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="f-status"><option value="draft">Draft</option><option value="published">Published</option></select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'videos';
+      let rows = [];
+
+      function getThumb(r) {
+        if (r.thumbnail_url) return r.thumbnail_url;
+        const yt = (r.url || '').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+        return yt ? `https://img.youtube.com/vi/${yt[1]}/mqdefault.jpg` : '';
+      }
+
+      async function load() {
+        const { data } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+        rows = data || []; render(rows);
+      }
+
+      function render(data) {
+        const grid = document.getElementById('videos-grid');
+        if (!data.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>No videos yet.</p></div>'; return; }
+        grid.innerHTML = data.map(r => `
+          <div class="card" style="overflow:hidden">
+            <div style="position:relative;aspect-ratio:16/9;background:var(--bg3)">
+              ${getThumb(r)
+                ? `<img src="${getThumb(r)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" />`
+                : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">No thumbnail</div>`}
+              <span class="badge ${r.status === 'published' ? 'badge-green' : 'badge-yellow'}" style="position:absolute;top:8px;right:8px">${r.status}</span>
+            </div>
+            <div style="padding:14px">
+              <div style="font-weight:700;font-size:13px;margin-bottom:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.title}</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${r.category || ''}</div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+              </div>
+            </div>
+          </div>`).join('');
+      }
+
+      window.filterRows = () => { const q = document.getElementById('search').value.toLowerCase(); render(rows.filter(r => r.title.toLowerCase().includes(q))); };
+      window.openModal = (id = null) => { document.getElementById('modal-title').textContent = id ? 'Edit Video' : 'Add Video'; document.getElementById('edit-id').value = id || ''; if (!id) document.getElementById('videos-form').reset(); document.getElementById('modal').classList.add('open'); };
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id); if (!r) return;
+        document.getElementById('f-title').value    = r.title         || '';
+        document.getElementById('f-url').value      = r.url           || '';
+        document.getElementById('f-thumb').value    = r.thumbnail_url || '';
+        document.getElementById('f-desc').value     = r.description   || '';
+        document.getElementById('f-category').value = r.category      || '';
+        document.getElementById('f-status').value   = r.status        || 'draft';
+        window.openModal(id);
+      };
+      window.deleteRow = async (id) => { if (!confirm('Delete video?')) return; await sb.from(TABLE).delete().eq('id', id); window.showToast('Deleted.'); load(); };
+      window.closeModal = () => document.getElementById('modal').classList.remove('open');
+      document.getElementById('videos-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value;
+        const payload = { title: document.getElementById('f-title').value, url: document.getElementById('f-url').value, thumbnail_url: document.getElementById('f-thumb').value, description: document.getElementById('f-desc').value, category: document.getElementById('f-category').value, status: document.getElementById('f-status').value };
+        if (id) { await sb.from(TABLE).update(payload).eq('id', id); window.showToast('Updated.'); }
+        else    { await sb.from(TABLE).insert(payload); window.showToast('Added.'); }
+        window.closeModal(); load();
+      });
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

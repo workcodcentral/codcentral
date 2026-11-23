@@ -1,0 +1,287 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Blogs" active="Blogs">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Blogs</div>
+      <div class="page-sub">Write and manage blog posts for the site.</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ New Post</button>
+  </div>
+
+  <!-- Error banner -->
+  <div id="page-error" style="display:none;padding:12px 16px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:8px;color:#f87171;font-size:13px;margin-bottom:16px"></div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search posts…" oninput="filterRows()" />
+    </div>
+    <select class="form-select" style="width:140px" id="status-filter" onchange="filterRows()">
+      <option value="">All</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th><th>Tag</th><th>Author</th><th>Read Time</th>
+            <th>Status</th><th>Date</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="blogs-tbody">
+          <tr><td colspan="7"><div class="empty-state"><p>Loading…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal" style="max-width:600px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div class="modal-title" style="margin-bottom:0" id="modal-title">New Blog Post</div>
+        <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">✕</button>
+      </div>
+
+      <!-- Modal error -->
+      <div id="modal-error" style="display:none;padding:10px 14px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:6px;color:#f87171;font-size:13px;margin-bottom:14px"></div>
+
+      <form id="blogs-form">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input class="form-input" id="f-title" placeholder="Enter blog post title" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Tag / Category</label>
+            <input class="form-input" id="f-tag" placeholder="e.g. Marketing, SEO…" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Read Time</label>
+            <input class="form-input" id="f-readtime" placeholder="e.g. 5 min read" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input class="form-input" id="f-author" placeholder="Author name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Excerpt <span style="font-weight:400;color:var(--muted)">(shown in cards)</span></label>
+          <textarea class="form-textarea" id="f-excerpt" placeholder="A short summary of the post…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content <span style="font-weight:400;color:var(--muted)">(full body)</span></label>
+          <textarea class="form-textarea" id="f-content" style="min-height:160px" placeholder="Full blog post content…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cover Image URL</label>
+          <input class="form-input" id="f-image" placeholder="https://…" />
+        </div>
+        <!-- Image preview -->
+        <div id="img-preview" style="display:none;margin-bottom:16px">
+          <img id="img-preview-el" src="" style="width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'blogs';
+      let rows = [];
+
+      function showPageError(msg) {
+        const el = document.getElementById('page-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+      }
+
+      function showModalError(msg) {
+        const el = document.getElementById('modal-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+      }
+
+      function hideModalError() {
+        document.getElementById('modal-error').style.display = 'none';
+      }
+
+      async function load() {
+        document.getElementById('blogs-tbody').innerHTML =
+          '<tr><td colspan="7"><div class="empty-state"><p>Loading…</p></div></td></tr>';
+
+        const { data, error } = await sb
+          .from(TABLE)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          showPageError('Failed to load posts: ' + error.message);
+          document.getElementById('blogs-tbody').innerHTML =
+            '<tr><td colspan="7"><div class="empty-state"><p style="color:#f87171">Could not load data.</p></div></td></tr>';
+          return;
+        }
+
+        rows = data || [];
+        render(rows);
+      }
+
+      function render(data) {
+        const tbody = document.getElementById('blogs-tbody');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No posts yet. Click <strong>+ New Post</strong> to write one.</p></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td style="font-weight:600;max-width:260px">
+              <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px">${r.title}</div>
+            </td>
+            <td><span class="badge badge-blue">${r.tag || '—'}</span></td>
+            <td style="color:var(--muted)">${r.author || '—'}</td>
+            <td style="color:var(--muted);white-space:nowrap">${r.read_time || '—'}</td>
+            <td>
+              <span class="badge ${r.status === 'published' ? 'badge-green' : 'badge-yellow'}">
+                ${r.status}
+              </span>
+            </td>
+            <td style="color:var(--muted);white-space:nowrap">
+              ${new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}
+            </td>
+            <td style="display:flex;gap:6px;white-space:nowrap">
+              <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      // Live image preview
+      document.getElementById('f-image').addEventListener('input', (e) => {
+        const url = e.target.value.trim();
+        const preview = document.getElementById('img-preview');
+        const img     = document.getElementById('img-preview-el');
+        if (url) { img.src = url; preview.style.display = 'block'; }
+        else      { preview.style.display = 'none'; }
+      });
+
+      window.filterRows = () => {
+        const q = document.getElementById('search').value.toLowerCase();
+        const s = document.getElementById('status-filter').value;
+        render(rows.filter(r =>
+          (r.title + (r.author || '') + (r.tag || '')).toLowerCase().includes(q) &&
+          (s ? r.status === s : true)
+        ));
+      };
+
+      window.openModal = (id = null) => {
+        document.getElementById('modal-title').textContent = id ? 'Edit Post' : 'New Blog Post';
+        document.getElementById('edit-id').value = id || '';
+        document.getElementById('save-btn').textContent = id ? 'Update Post' : 'Save Post';
+        document.getElementById('img-preview').style.display = 'none';
+        hideModalError();
+        if (!id) document.getElementById('blogs-form').reset();
+        document.getElementById('modal').classList.add('open');
+      };
+
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('f-title').value    = r.title     || '';
+        document.getElementById('f-tag').value      = r.tag       || '';
+        document.getElementById('f-readtime').value = r.read_time || '';
+        document.getElementById('f-author').value   = r.author    || '';
+        document.getElementById('f-excerpt').value  = r.excerpt   || '';
+        document.getElementById('f-content').value  = r.content   || '';
+        document.getElementById('f-image').value    = r.image_url || '';
+        document.getElementById('f-status').value   = r.status    || 'draft';
+        if (r.image_url) {
+          document.getElementById('img-preview-el').src = r.image_url;
+          document.getElementById('img-preview').style.display = 'block';
+        }
+        window.openModal(id);
+      };
+
+      window.deleteRow = async (id) => {
+        if (!confirm('Delete this post? This cannot be undone.')) return;
+        const { error } = await sb.from(TABLE).delete().eq('id', id);
+        if (error) { window.showToast('Delete failed: ' + error.message); return; }
+        window.showToast('Post deleted.');
+        load();
+      };
+
+      window.closeModal = () => {
+        document.getElementById('modal').classList.remove('open');
+        hideModalError();
+      };
+
+      document.getElementById('blogs-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideModalError();
+
+        const title = document.getElementById('f-title').value.trim();
+        if (!title) { showModalError('Title is required.'); return; }
+
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.textContent = 'Saving…';
+
+        const id = document.getElementById('edit-id').value;
+        const payload = {
+          title,
+          tag:       document.getElementById('f-tag').value.trim()      || null,
+          read_time: document.getElementById('f-readtime').value.trim()  || null,
+          author:    document.getElementById('f-author').value.trim()    || null,
+          excerpt:   document.getElementById('f-excerpt').value.trim()   || null,
+          content:   document.getElementById('f-content').value.trim()   || null,
+          image_url: document.getElementById('f-image').value.trim()     || null,
+          status:    document.getElementById('f-status').value,
+        };
+
+        let error;
+        if (id) {
+          ({ error } = await sb.from(TABLE).update(payload).eq('id', id));
+        } else {
+          ({ error } = await sb.from(TABLE).insert(payload));
+        }
+
+        saveBtn.removeAttribute('disabled');
+        saveBtn.textContent = id ? 'Update Post' : 'Save Post';
+
+        if (error) {
+          showModalError('Save failed: ' + error.message);
+          return;
+        }
+
+        window.showToast(id ? 'Post updated ✓' : 'Post created ✓');
+        window.closeModal();
+        load();
+      });
+
+      load();
+    })();
+  </script>
+
+</DashboardLayout>

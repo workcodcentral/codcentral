@@ -1,15 +1,15 @@
 ---
-const awards = [
-  { body: 'Webby Awards',       year: '2024', category: 'Best Marketing Agency',       rank: 'Winner' },
-  { body: 'Cannes Lions',       year: '2024', category: 'Digital Craft " Brand',       rank: 'Gold' },
-  { body: 'D&AD',               year: '2024', category: 'Digital Design',              rank: 'Yellow Pencil' },
-  { body: 'Effie Awards',       year: '2023', category: 'B2B Effectiveness',           rank: 'Silver' },
-  { body: 'FWA',                year: '2024', category: 'Site of the Year',            rank: 'FOTM' },
-  { body: 'Campaign Big Awards',year: '2023', category: 'Agency of the Year',          rank: 'Shortlisted' },
+const tools = [
+  { name: 'Meta Business Partner',  img: '/metabusinesspartnerlogo.jpg',      blend: false },
+  { name: 'Google Ads',             img: '/googleadslogo.png',                blend: true  },
+  { name: 'Google AdSense',         img: '/googleadsenselogo.jpg',            blend: false },
+  { name: 'Google Search Console',  img: '/googlesearchconsolelogo.jpg',      blend: true  },
+  { name: 'Notion',                 img: '/notionlogo.jpg',                   blend: false },
+  { name: 'Co-operative Bank',      img: '/cooperativebanklogo.png',          blend: true  },
 ];
 ---
 
-<section id="recognition" class="section-pad bg-canvas-dark">
+<section id="recognition" class="section-pad bg-white">
   <div class="container-site">
     <div class="reveal text-center max-w-xl mx-auto mb-16">
       <span class="eyebrow mb-4">Recognition</span>
@@ -47,22 +47,17 @@ const awards = [
       </div>
     </div>
 
-    <!-- Awards grid -->
-    <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {awards.map((a) => (
-        <div class="reveal card flex items-start gap-5">
-          <!-- Trophy icon -->
-          <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center text-red-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="font-display font-700 text-sm text-navy-500">{a.body}</span>
-              <span class="font-body text-xs text-navy-400/40">{a.year}</span>
-            </div>
-            <div class="font-body text-xs text-navy-400/70 mb-2">{a.category}</div>
-            <span class="inline-flex px-2.5 py-0.5 rounded-full bg-red-50 text-red-400 font-body font-700 text-xs">{a.rank}</span>
-          </div>
+    <!-- Tools & partners logos -->
+    <div class="reveal flex flex-wrap items-center justify-center gap-x-12 gap-y-10 pt-4">
+      {tools.map((t) => (
+        <div class="flex flex-col items-center gap-2">
+          <img
+            src={t.img}
+            alt={t.name}
+            class={`h-64 w-auto object-contain transition-all duration-300 ${t.blend ? 'mix-blend-multiply' : ''}`}
+            loading="lazy"
+          />
+          <span class="font-body text-xs text-navy-400/50 text-center leading-tight">{t.name}</span>
         </div>
       ))}
     </div>

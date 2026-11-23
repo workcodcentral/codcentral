@@ -142,4 +142,11 @@
 
   .bg-teal-dark { background-color: var(--teal-dark); }
   .text-teal-dark { color: var(--teal-dark); }
+
+  /* Prevent Tailwind base styles bleeding into admin dashboard */
+  html[data-admin="true"] body {
+    background: #0f1117 !important;
+    color: #e2e8f0 !important;
+    font-family: 'Manrope', sans-serif !important;
+  }
 }

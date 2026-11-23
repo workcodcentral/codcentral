@@ -1,0 +1,151 @@
+---
+import { createClient } from '@supabase/supabase-js';
+
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+const accents = ['bg-red-400', 'bg-navy-300', 'bg-sage-400', 'bg-red-300'];
+
+let articles: Array<{
+  tag: string;
+  date: string;
+  readTime: string | null;
+  title: string;
+  excerpt: string;
+  author: string;
+  image: string | null;
+  _ts: number;
+}> = [];
+
+if (sbUrl && sbUrl !== 'your_supabase_project_url') {
+  try {
+    const sb = createClient(sbUrl, sbKey);
+
+    const [{ data: blogs }, { data: news }] = await Promise.all([
+      sb.from('blogs')
+        .select('id, title, tag, read_time, excerpt, author, image_url, created_at')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(4),
+      sb.from('news_articles')
+        .select('id, title, category, excerpt, author, image_url, created_at')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(4),
+    ]);
+
+    const combined = [
+      ...(blogs || []).map(b => ({
+        tag:      b.tag       || 'Blog',
+        date:     new Date(b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        readTime: b.read_time || null,
+        title:    b.title,
+        excerpt:  b.excerpt   || '',
+        author:   b.author    || 'Codcentral Studios',
+        image:    b.image_url || null,
+        _ts:      new Date(b.created_at).getTime(),
+      })),
+      ...(news || []).map(n => ({
+        tag:      n.category  || 'News',
+        date:     new Date(n.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        readTime: null,
+        title:    n.title,
+        excerpt:  n.excerpt   || '',
+        author:   n.author    || 'Codcentral Studios',
+        image:    n.image_url || null,
+        _ts:      new Date(n.created_at).getTime(),
+      })),
+    ];
+
+    combined.sort((a, b) => b._ts - a._ts);
+    articles = combined.slice(0, 4);
+  } catch (e) {
+    // silently fail — section hidden when empty
+  }
+}
+---
+
+{articles.length > 0 && (
+<section id="news" class="section-pad bg-canvas">
+  <div class="container-site">
+
+    <!-- Header -->
+    <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+      <div class="max-w-xl">
+        <span class="eyebrow mb-4">Fresh from the blog</span>
+        <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
+          Latest insights
+        </h2>
+      </div>
+      <a href="/insights" class="btn-secondary shrink-0 self-start sm:self-auto">
+        All articles
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- Cards — fills up to 4 columns as posts are added -->
+    <div class={`stagger grid grid-cols-1 sm:grid-cols-2 ${articles.length >= 3 ? 'lg:grid-cols-3' : ''} ${articles.length >= 4 ? 'xl:grid-cols-4' : ''} gap-5`}>
+      {articles.map((a, i) => (
+        <article class="reveal group flex flex-col bg-white border border-canvas-dark hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+
+          <!-- Colour accent bar -->
+          <div class={`h-1 w-full ${accents[i % accents.length]}`}></div>
+
+          <!-- Cover image (only if available) -->
+          {a.image && (
+            <div class="overflow-hidden h-40">
+              <img
+                src={a.image}
+                alt={a.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          <div class="flex flex-col flex-1 p-5">
+            <!-- Tag + read time -->
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-body font-700 text-xs text-red-400 tracking-widest uppercase">{a.tag}</span>
+              {a.readTime && (
+                <span class="font-body text-xs text-navy-400/40">{a.readTime}</span>
+              )}
+            </div>
+
+            <!-- Title -->
+            <h3 class="font-display font-700 text-sm text-navy-500 leading-snug mb-2 group-hover:text-red-400 transition-colors duration-200 line-clamp-3">
+              {a.title}
+            </h3>
+
+            <!-- Excerpt -->
+            <p class="font-body text-xs text-navy-400/65 leading-relaxed flex-1 mb-4 line-clamp-3">
+              {a.excerpt}
+            </p>
+
+            <!-- Author + date + read more -->
+            <div class="pt-4 border-t border-canvas-dark">
+              <div class="flex items-center gap-2 mb-3">
+                <img src="/emmanuel.png" alt={a.author} class="w-6 h-6 rounded-full object-cover" loading="lazy" />
+                <div>
+                  <div class="font-body font-600 text-xs text-navy-500">{a.author}</div>
+                  <div class="font-body text-xs text-navy-400/40">{a.date}</div>
+                </div>
+              </div>
+              <a
+                href="/insights"
+                class="inline-flex items-center gap-1.5 font-body font-600 text-xs text-red-400 hover:text-red-500 transition-colors duration-200"
+                style="position:relative;z-index:10"
+              >
+                Read full story
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+)}

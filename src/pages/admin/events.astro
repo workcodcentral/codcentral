@@ -1,0 +1,114 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<DashboardLayout title="Events" active="Events">
+
+  <div class="page-header">
+    <div><div class="page-title">Events</div><div class="page-sub">Create and manage upcoming events.</div></div>
+    <button class="btn btn-primary" onclick="openModal()">+ New Event</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" type="text" id="search" placeholder="Search events…" oninput="filterRows()" />
+    </div>
+    <select class="form-select" style="width:160px" id="status-filter" onchange="filterRows()">
+      <option value="">All</option><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Date</th><th>Location</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="events-tbody"><tr><td colspan="6"><div class="empty-state"><p>Loading…</p></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">New Event</div>
+      <form id="events-form">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group"><label class="form-label">Event Name *</label><input class="form-input" id="f-name" required /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="datetime-local" id="f-date" required /></div>
+          <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="f-location" placeholder="City or Online" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Capacity</label><input class="form-input" type="number" id="f-cap" /></div>
+          <div class="form-group"><label class="form-label">Registration URL</label><input class="form-input" id="f-reg" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Banner Image URL</label><input class="form-input" id="f-image" /></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-select" id="f-status"><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="cancelled">Cancelled</option></select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    (async () => {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const sb = createClient(sbUrl, sbKey);
+      const TABLE = 'events';
+      let rows = [];
+
+      async function load() {
+        const { data } = await sb.from(TABLE).select('*').order('event_date', { ascending: true });
+        rows = data || []; render(rows);
+      }
+      function render(data) {
+        const tbody = document.getElementById('events-tbody');
+        if (!data.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No events yet.</p></div></td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td style="font-weight:600">${r.name}</td>
+            <td style="white-space:nowrap;color:var(--muted)">${r.event_date ? new Date(r.event_date).toLocaleString() : '—'}</td>
+            <td style="color:var(--muted)">${r.location || '—'}</td>
+            <td style="color:var(--muted)">${r.capacity ?? '—'}</td>
+            <td><span class="badge ${r.status === 'upcoming' ? 'badge-green' : r.status === 'cancelled' ? 'badge-red' : 'badge-gray'}">${r.status}</span></td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-secondary btn-sm" onclick="editRow('${r.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRow('${r.id}')">Delete</button>
+            </td>
+          </tr>`).join('');
+      }
+      window.filterRows = () => { const q = document.getElementById('search').value.toLowerCase(); const s = document.getElementById('status-filter').value; render(rows.filter(r => r.name.toLowerCase().includes(q) && (s ? r.status === s : true))); };
+      window.openModal = (id = null) => { document.getElementById('modal-title').textContent = id ? 'Edit Event' : 'New Event'; document.getElementById('edit-id').value = id || ''; if (!id) document.getElementById('events-form').reset(); document.getElementById('modal').classList.add('open'); };
+      window.editRow = (id) => {
+        const r = rows.find(x => x.id === id); if (!r) return;
+        document.getElementById('f-name').value     = r.name             || '';
+        document.getElementById('f-date').value     = r.event_date ? r.event_date.slice(0, 16) : '';
+        document.getElementById('f-location').value = r.location         || '';
+        document.getElementById('f-desc').value     = r.description      || '';
+        document.getElementById('f-cap').value      = r.capacity         || '';
+        document.getElementById('f-reg').value      = r.registration_url || '';
+        document.getElementById('f-image').value    = r.image_url        || '';
+        document.getElementById('f-status').value   = r.status           || 'upcoming';
+        window.openModal(id);
+      };
+      window.deleteRow = async (id) => { if (!confirm('Delete event?')) return; await sb.from(TABLE).delete().eq('id', id); window.showToast('Deleted.'); load(); };
+      window.closeModal = () => document.getElementById('modal').classList.remove('open');
+      document.getElementById('events-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value;
+        const payload = { name: document.getElementById('f-name').value, event_date: document.getElementById('f-date').value, location: document.getElementById('f-location').value, description: document.getElementById('f-desc').value, capacity: parseInt(document.getElementById('f-cap').value) || null, registration_url: document.getElementById('f-reg').value, image_url: document.getElementById('f-image').value, status: document.getElementById('f-status').value };
+        if (id) { await sb.from(TABLE).update(payload).eq('id', id); window.showToast('Updated.'); }
+        else    { await sb.from(TABLE).insert(payload); window.showToast('Event created.'); }
+        window.closeModal(); load();
+      });
+      load();
+    })();
+  </script>
+
+</DashboardLayout>
