@@ -54,9 +54,9 @@ const testimonials = [
 <section id="clients" class="bg-navy-500 overflow-hidden py-20">
   <!-- Section header -->
   <div class="container-site mb-14 text-center reveal">
-    <span class="eyebrow !text-white/50 before:bg-white/30 mb-4">Social proof</span>
+    <span class="eyebrow !text-white/50 before:bg-white/30 mb-4" data-cms-text="testimonials_eyebrow">Social proof</span>
     <h2 class="font-display font-800 text-display-lg text-white text-balance mt-4">
-      What some of our<br/><span class="text-red-400">clients say</span>
+      <span data-cms-text="testimonials_title1">What some of our</span><br/><span class="text-red-400" data-cms-text="testimonials_title2">clients say</span>
     </h2>
   </div>
 
@@ -65,13 +65,13 @@ const testimonials = [
     <div class="relative">
       <!-- Slides -->
       <div id="slider-track" class="overflow-hidden">
-        <div id="slides-container" class="flex transition-transform duration-500 ease-in-out">
+        <div id="slides-container" class="flex transition-transform duration-500 ease-in-out" data-cms-list="testimonials">
           {testimonials.map((t) => (
             <div class="slide min-w-full px-4 md:px-16">
               <div class="max-w-3xl mx-auto text-center">
                 <!-- Quote -->
                 <blockquote class="font-display font-500 text-xl md:text-2xl text-white/90 leading-snug text-balance italic mb-10">
-                  "{t.quote}"
+                  "<span data-cms-text="quote">{t.quote}</span>"
                 </blockquote>
 
                 <!-- Attribution -->
@@ -80,6 +80,8 @@ const testimonials = [
                     <img
                       src={t.image}
                       alt={t.name}
+                      data-cms-src="image"
+                      data-cms-alt="name"
                       class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-white/20"
                     />
                   ) : (
@@ -88,8 +90,8 @@ const testimonials = [
                     </span>
                   )}
                   <div class="text-left">
-                    <div class="font-display font-700 text-white text-sm">{t.name}</div>
-                    <div class="font-body text-white/50 text-xs">{t.title}</div>
+                    <div class="font-display font-700 text-white text-sm" data-cms-text="name">{t.name}</div>
+                    <div class="font-body text-white/50 text-xs" data-cms-text="title">{t.title}</div>
                   </div>
                 </div>
               </div>
@@ -118,15 +120,31 @@ const testimonials = [
 
 <script>
   const container   = document.getElementById('slides-container')!;
-  const dots        = document.querySelectorAll<HTMLElement>('#dots .dot');
-  const totalSlides = document.querySelectorAll('.slide').length;
+  const dotsRoot    = document.getElementById('dots')!;
+  const totalSlides = () => container.querySelectorAll('.slide').length;
   let current = 0;
   let autoTimer: ReturnType<typeof setInterval>;
 
   const goTo = (idx: number) => {
-    current = (idx + totalSlides) % totalSlides;
+    const total = totalSlides();
+    if (!total) {
+      container.style.transform = '';
+      return;
+    }
+    current = (idx % total + total) % total;
     container.style.transform = `translateX(-${current * 100}%)`;
-    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    dotsRoot.querySelectorAll<HTMLElement>('.dot').forEach((dot, i) => dot.classList.toggle('active', i === current));
+  };
+
+  const renderDots = () => {
+    dotsRoot.replaceChildren();
+    Array.from({ length: totalSlides() }, (_, index) => {
+      const dot = document.createElement('button');
+      dot.className = `dot${index === 0 ? ' active' : ''}`;
+      dot.dataset.index = String(index);
+      dot.setAttribute('aria-label', `Go to testimonial ${index + 1}`);
+      dotsRoot.append(dot);
+    });
   };
 
   const startAuto = () => {
@@ -140,7 +158,16 @@ const testimonials = [
 
   document.getElementById('prev-btn')!.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
   document.getElementById('next-btn')!.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
-  dots.forEach((d) => d.addEventListener('click', () => { goTo(Number(d.dataset.index)); resetAuto(); }));
+  dotsRoot.addEventListener('click', (event) => {
+    const dot = (event.target as HTMLElement).closest<HTMLElement>('.dot');
+    if (dot) { goTo(Number(dot.dataset.index)); resetAuto(); }
+  });
+  window.addEventListener('codcentral:cms-updated', () => {
+    renderDots();
+    goTo(0);
+    resetAuto();
+  });
 
+  renderDots();
   startAuto();
 </script>

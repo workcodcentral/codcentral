@@ -12,9 +12,9 @@ const tools = [
 <section id="recognition" class="section-pad bg-white">
   <div class="container-site">
     <div class="reveal text-center max-w-xl mx-auto mb-16">
-      <span class="eyebrow mb-4">Recognition</span>
+      <span class="eyebrow mb-4" data-cms-text="recognition_eyebrow">Recognition</span>
       <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
-        Recognised by the industry's<br/>most rigorous judges
+        <span data-cms-text="recognition_title1">Recognised by the industry's</span><br/><span data-cms-text="recognition_title2">most rigorous judges</span>
       </h2>
     </div>
 
@@ -28,19 +28,19 @@ const tools = [
           ))}
         </div>
         <div>
-          <div class="font-display font-800 text-3xl text-white">4.9 / 5.0</div>
-          <div class="font-body text-xs text-white/50 mt-0.5">Average client satisfaction across 39+ engagements</div>
+          <div class="font-display font-800 text-3xl text-white" data-cms-text="rating_score">4.9 / 5.0</div>
+          <div class="font-body text-xs text-white/50 mt-0.5" data-cms-text="rating_caption">Average client satisfaction across 39+ engagements</div>
         </div>
       </div>
       <div class="flex gap-4 items-center">
         <div class="text-center">
-          <div class="font-display font-700 text-xl text-white">98%</div>
-          <div class="font-body text-xs text-white/50">Client retention</div>
+          <div class="font-display font-700 text-xl text-white" data-cms-text="retention_value">98%</div>
+          <div class="font-body text-xs text-white/50" data-cms-text="retention_label">Client retention</div>
         </div>
         <div class="w-px h-10 bg-white/15"></div>
         <div class="text-center">
-          <div class="font-display font-700 text-xl text-white">92%</div>
-          <div class="font-body text-xs text-white/50">Referral rate</div>
+          <div class="font-display font-700 text-xl text-white" data-cms-text="referral_value">92%</div>
+          <div class="font-body text-xs text-white/50" data-cms-text="referral_label">Referral rate</div>
         </div>
         <div class="w-px h-10 bg-white/15"></div>
         <a href="/contact" class="btn-primary text-xs px-5 py-2.5">Work with us</a>
@@ -48,16 +48,18 @@ const tools = [
     </div>
 
     <!-- Tools & partners logos -->
-    <div class="reveal flex flex-wrap items-center justify-center gap-x-12 gap-y-10 pt-4">
+    <div class="reveal flex flex-wrap items-center justify-center gap-x-12 gap-y-10 pt-4" data-cms-list="tools">
       {tools.map((t) => (
         <div class="flex flex-col items-center gap-2">
           <img
             src={t.img}
+            data-cms-src="img"
+            data-cms-alt="name"
             alt={t.name}
             class={`h-64 w-auto object-contain transition-all duration-300 ${t.blend ? 'mix-blend-multiply' : ''}`}
             loading="lazy"
           />
-          <span class="font-body text-xs text-navy-400/50 text-center leading-tight">{t.name}</span>
+          <span class="font-body text-xs text-navy-400/50 text-center leading-tight" data-cms-text="name">{t.name}</span>
         </div>
       ))}
     </div>

@@ -16,17 +16,17 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </div>
     <div class="container-site relative z-10">
       <div class="reveal max-w-3xl">
-        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">What we do</span>
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5" data-cms-text="services_hero_eyebrow">What we do</span>
         <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
-          Three disciplines.<br/><span class="text-red-400">One growth engine.</span>
+          <span data-cms-text="services_hero_line1">Three disciplines.</span><br/><span class="text-red-400" data-cms-text="services_hero_line2">One growth engine.</span>
         </h1>
-        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl" data-cms-text="services_hero_sub">
           Our marketing, technology, and design practices work together as a single integrated team —
           each one amplifying the others to deliver outcomes no siloed agency can match.
         </p>
         <div class="mt-10 flex flex-wrap gap-4">
-          <a href="/contact" class="btn-primary">Get a proposal</a>
-          <a href="/work"    class="btn-outline-white">See client results</a>
+          <a href="/contact" class="btn-primary" data-cms-href="services_hero_cta1_url"><span data-cms-text="services_hero_cta1">Get a proposal</span></a>
+          <a href="/work"    class="btn-outline-white" data-cms-href="services_hero_cta2_url"><span data-cms-text="services_hero_cta2">See client results</span></a>
         </div>
       </div>
     </div>

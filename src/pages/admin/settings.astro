@@ -43,10 +43,19 @@ const isConfigured = sbUrl && sbUrl !== 'your_supabase_project_url';
         <div class="form-group"><label class="form-label">LinkedIn</label><input class="form-input" id="social_linkedin" /></div>
         <div class="form-group"><label class="form-label">Twitter / X</label><input class="form-input" id="social_twitter" /></div>
         <div class="form-group"><label class="form-label">Instagram</label><input class="form-input" id="social_instagram" /></div>
+        <div class="form-group"><label class="form-label">Dribbble</label><input class="form-input" id="social_dribbble" /></div>
         <div class="form-group"><label class="form-label">Facebook</label><input class="form-input" id="social_facebook" /></div>
         <div class="form-group"><label class="form-label">YouTube</label><input class="form-input" id="social_youtube" /></div>
         <div class="form-group"><label class="form-label">TikTok</label><input class="form-input" id="social_tiktok" /></div>
       </div>
+    </div>
+
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">WhatsApp Widget Text</div>
+      <div class="form-group"><label class="form-label">Chat button label</label><input class="form-input" id="whatsapp_chat_label" value="Chat with us" /></div>
+      <div class="form-group"><label class="form-label">Consultation prompt</label><input class="form-input" id="whatsapp_cta1" value="💬 Get a free consultation" /></div>
+      <div class="form-group"><label class="form-label">Work/results prompt</label><input class="form-input" id="whatsapp_cta2" value="🚀 See our work & results" /></div>
+      <div class="form-group"><label class="form-label">Pricing prompt</label><input class="form-input" id="whatsapp_cta3" value="💰 Get pricing & packages" /></div>
     </div>
 
     <!-- Toggles -->
@@ -84,7 +93,7 @@ const isConfigured = sbUrl && sbUrl !== 'your_supabase_project_url';
   </div>
 
   <script define:vars={{ sbUrl, sbKey }}>
-    const FIELDS   = ['site_name','site_tagline','logo_url','favicon_url','meta_description','contact_email','contact_phone','whatsapp_number','location','social_linkedin','social_twitter','social_instagram','social_facebook','social_youtube','social_tiktok'];
+    const FIELDS   = ['site_name','site_tagline','logo_url','favicon_url','meta_description','contact_email','contact_phone','whatsapp_number','whatsapp_chat_label','whatsapp_cta1','whatsapp_cta2','whatsapp_cta3','location','social_linkedin','social_twitter','social_instagram','social_dribbble','social_facebook','social_youtube','social_tiktok'];
     const TOGGLES  = ['whatsapp_widget','newsletter_banner','cookie_banner','maintenance_mode','show_shop','show_insights'];
 
     (async () => {
@@ -92,10 +101,16 @@ const isConfigured = sbUrl && sbUrl !== 'your_supabase_project_url';
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
       const sb = createClient(sbUrl, sbKey);
 
-      const { data } = await sb.from('settings').select('*').eq('key', 'global').maybeSingle();
+      const { data, error: loadError } = await sb.from('settings').select('*').eq('key', 'global').maybeSingle();
+      if (loadError) {
+        console.error('Could not load site settings:', loadError);
+        window.showToast('Could not load site settings: ' + loadError.message);
+        window.saveAll = () => window.showToast('Reload the page before saving.');
+        return;
+      }
       if (data?.value) {
         const c = data.value;
-        FIELDS.forEach(f  => { const el = document.getElementById(f);       if (el) el.value   = c[f] || ''; });
+        FIELDS.forEach(f  => { const el = document.getElementById(f);       if (el && c[f] !== undefined) el.value = c[f]; });
         TOGGLES.forEach(f => { const el = document.getElementById('ft_'+f); if (el) el.checked = !!c[f]; });
       }
 
@@ -103,7 +118,11 @@ const isConfigured = sbUrl && sbUrl !== 'your_supabase_project_url';
         const value = {};
         FIELDS.forEach(f  => { const el = document.getElementById(f);       if (el) value[f] = el.value; });
         TOGGLES.forEach(f => { const el = document.getElementById('ft_'+f); if (el) value[f] = el.checked; });
-        await sb.from('settings').upsert({ key: 'global', value }, { onConflict: 'key' });
+        const { error } = await sb.from('settings').upsert({ key: 'global', value }, { onConflict: 'key' });
+        if (error) {
+          window.showToast('Could not save settings: ' + error.message);
+          return;
+        }
         window.showToast('Settings saved!');
       };
     })();

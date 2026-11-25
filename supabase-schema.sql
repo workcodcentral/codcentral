@@ -1,6 +1,8 @@
 -- ============================================================
 -- Codcentral Studios — Supabase Schema
 -- Run this in the Supabase SQL Editor (Dashboard → SQL Editor)
+-- Existing installations should run supabase-admin-auth-migration.sql instead
+-- of re-running this full schema.
 -- ============================================================
 
 -- Enable UUID extension (already on by default in Supabase)
@@ -166,6 +168,10 @@ values ('global', '{
   "contact_email": "work.codcentral@gmail.com",
   "contact_phone": "0754 138 667",
   "whatsapp_number": "+256754138667",
+  "whatsapp_chat_label": "Chat with us",
+  "whatsapp_cta1": "💬 Get a free consultation",
+  "whatsapp_cta2": "🚀 See our work & results",
+  "whatsapp_cta3": "💰 Get pricing & packages",
   "whatsapp_widget": true,
   "show_shop": false,
   "show_insights": true
@@ -254,69 +260,102 @@ create policy "Auth delete contact"
   using (auth.role() = 'authenticated');
 
 -- ─────────────────────────────────────────
--- TEMPORARY OPEN POLICIES FOR DASHBOARD
--- (Until Supabase Auth is wired up)
--- Run these in Supabase SQL Editor to allow
--- the dashboard to read/write without login.
+-- ADMIN AUTHORIZATION
+-- Create an account in Supabase Auth, then run:
+-- insert into public.user_roles (user_id, role)
+-- values ('<auth.users UUID>', 'admin');
 -- ─────────────────────────────────────────
 
--- Drop the authenticated-only write policies and replace with open ones
--- BLOGS
-drop policy if exists "Auth full access blogs" on blogs;
-create policy "Open full access blogs"
-  on blogs for all using (true) with check (true);
+create table if not exists user_roles (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  role       text not null check (role in ('admin')),
+  created_at timestamptz not null default now()
+);
 
--- PHOTOS
-drop policy if exists "Auth full access photos" on photos;
-create policy "Open full access photos"
-  on photos for all using (true) with check (true);
+alter table user_roles enable row level security;
+grant select, insert, update, delete on public.user_roles to authenticated;
 
--- NEWS ARTICLES
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.user_roles
+    where user_id = auth.uid()
+      and role = 'admin'
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
+create policy "Users read own role or admins read all"
+  on user_roles for select
+  using (auth.uid() = user_id or public.is_admin());
+
+create policy "Admins manage roles"
+  on user_roles for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- Remove the temporary anonymous write policies and the broader
+-- authenticated-user policies created earlier in this file.
+drop policy if exists "Open full access blogs" on blogs;
+drop policy if exists "Open full access photos" on photos;
+drop policy if exists "Open full access news" on news_articles;
+drop policy if exists "Open full access newsletters" on newsletters;
+drop policy if exists "Open full access videos" on videos;
+drop policy if exists "Open full access events" on events;
+drop policy if exists "Open full access interns" on interns;
+drop policy if exists "Open full access users" on users;
+drop policy if exists "Open full access settings" on settings;
+drop policy if exists "Open full access page" on page_content;
+drop policy if exists "Open full access resources" on resources;
+drop policy if exists "Open full access shop" on shop_products;
+
 drop policy if exists "Auth full access news" on news_articles;
-create policy "Open full access news"
-  on news_articles for all using (true) with check (true);
-
--- NEWSLETTERS
+drop policy if exists "Auth full access blogs" on blogs;
 drop policy if exists "Auth full access newsletters" on newsletters;
-create policy "Open full access newsletters"
-  on newsletters for all using (true) with check (true);
-
--- VIDEOS
+drop policy if exists "Auth full access photos" on photos;
 drop policy if exists "Auth full access videos" on videos;
-create policy "Open full access videos"
-  on videos for all using (true) with check (true);
-
--- EVENTS
-drop policy if exists "Auth full access events" on events;
-create policy "Open full access events"
-  on events for all using (true) with check (true);
-
--- INTERNS
-drop policy if exists "Auth full access interns" on interns;
-create policy "Open full access interns"
-  on interns for all using (true) with check (true);
-
--- USERS
-drop policy if exists "Auth full access users" on users;
-create policy "Open full access users"
-  on users for all using (true) with check (true);
-
--- SETTINGS
-drop policy if exists "Auth full access settings" on settings;
-create policy "Open full access settings"
-  on settings for all using (true) with check (true);
-
--- PAGE CONTENT
 drop policy if exists "Auth full access page" on page_content;
-create policy "Open full access page"
-  on page_content for all using (true) with check (true);
-
--- RESOURCES
 drop policy if exists "Auth full access resources" on resources;
-create policy "Open full access resources"
-  on resources for all using (true) with check (true);
-
--- SHOP PRODUCTS
 drop policy if exists "Auth full access shop" on shop_products;
-create policy "Open full access shop"
-  on shop_products for all using (true) with check (true);
+drop policy if exists "Auth full access events" on events;
+drop policy if exists "Auth full access interns" on interns;
+drop policy if exists "Auth full access users" on users;
+drop policy if exists "Auth full access settings" on settings;
+drop policy if exists "Auth read contact" on contact_submissions;
+drop policy if exists "Auth update contact" on contact_submissions;
+drop policy if exists "Auth delete contact" on contact_submissions;
+
+create policy "Admins manage news" on news_articles
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage blogs" on blogs
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage newsletters" on newsletters
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage photos" on photos
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage videos" on videos
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage page content" on page_content
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage resources" on resources
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage shop products" on shop_products
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage events" on events
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage interns" on interns
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage users" on users
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage settings" on settings
+  for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage contact submissions" on contact_submissions
+  for all using (public.is_admin()) with check (public.is_admin());

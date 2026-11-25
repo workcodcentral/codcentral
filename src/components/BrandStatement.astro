@@ -8,13 +8,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <div class="container-site relative z-10 text-center">
     <div class="reveal max-w-4xl mx-auto">
       <p class="font-display font-800 text-display-xl text-white leading-tight text-balance">
-        Every brand has an unfair advantage waiting to be unlocked.
-        <span class="italic font-500 text-white/80"> We find it, build it, and scale it.</span>
+        <span data-cms-text="brand_headline">Every brand has an unfair advantage waiting to be unlocked.</span>
+        <span class="italic font-500 text-white/80" data-cms-text="brand_sub"> We find it, build it, and scale it.</span>
       </p>
       <div class="mt-10 flex flex-wrap gap-4 justify-center">
-        <a href="/contact" class="btn-outline-white text-sm px-8 py-4">Start your growth journey</a>
-        <a href="/work" class="inline-flex items-center gap-2 font-body font-600 text-sm text-white/70 hover:text-white transition-colors duration-200 py-4">
-          See the results '
+        <a href="/contact" class="btn-outline-white text-sm px-8 py-4" data-cms-href="brand_cta1_url"><span data-cms-text="brand_cta1">Start your growth journey</span></a>
+        <a href="/work" class="inline-flex items-center gap-2 font-body font-600 text-sm text-white/70 hover:text-white transition-colors duration-200 py-4" data-cms-href="brand_cta2_url">
+          <span data-cms-text="brand_cta2">See the results '</span>
         </a>
       </div>
     </div>

@@ -35,52 +35,56 @@ const sitemap = [
 const socials = [
   {
     label: 'LinkedIn',
+    setting: 'social_linkedin',
     href: 'https://linkedin.com',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`,
   },
   {
     label: 'Twitter / X',
+    setting: 'social_twitter',
     href: 'https://twitter.com',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
   },
   {
     label: 'Instagram',
+    setting: 'social_instagram',
     href: 'https://instagram.com',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
   },
   {
     label: 'Dribbble',
+    setting: 'social_dribbble',
     href: 'https://dribbble.com',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>`,
   },
 ];
 ---
 
-<footer class="bg-navy-500 text-white">
+<footer class="bg-navy-500 text-white" data-cms-scope="footer">
   <div class="container-site py-16 md:py-20">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-8">
 
       <!-- Brand column -->
       <div class="lg:col-span-2">
         <a href="/" class="inline-flex items-center mb-6" aria-label="Codcentral Studios home">
-          <img src="/codcentrallogo.png" alt="Codcentral Studios" class="h-10 w-auto brightness-0 invert" />
+          <img src="/codcentrallogo.png" alt="Codcentral Studios" class="h-10 w-auto brightness-0 invert" data-cms-setting-src="logo_url" data-cms-setting-alt="site_name" />
         </a>
 
-        <p class="font-body text-sm text-white/50 leading-relaxed max-w-sm mb-8">
+        <p class="font-body text-sm text-white/50 leading-relaxed max-w-sm mb-8" data-cms-text="footer_description">
           Your global digital growth partner. We fuse marketing strategy, technology engineering,
           and award-winning design to accelerate brands across every market.
         </p>
 
         <div class="space-y-3 mb-8">
-          <a href="mailto:work.codcentral@gmail.com" class="flex items-center gap-3 font-body text-sm text-white/50 hover:text-white transition-colors duration-200">
+          <a href="mailto:work.codcentral@gmail.com" data-cms-setting="contact_email" class="flex items-center gap-3 font-body text-sm text-white/50 hover:text-white transition-colors duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             work.codcentral@gmail.com
           </a>
-          <a href="tel:+256754138667" class="flex items-center gap-3 font-body text-sm text-white/50 hover:text-white transition-colors duration-200">
+          <a href="tel:+256754138667" data-cms-setting="contact_phone" class="flex items-center gap-3 font-body text-sm text-white/50 hover:text-white transition-colors duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.14 1.18 2 2 0 012.11.14h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
             0754 138 667
           </a>
-          <span class="flex items-center gap-3 font-body text-sm text-white/50">
+          <span class="flex items-center gap-3 font-body text-sm text-white/50" data-cms-setting="location">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             Onsite &amp; Remote
           </span>
@@ -90,6 +94,7 @@ const socials = [
           {socials.map(s => (
             <a
               href={s.href}
+              data-cms-setting-href={s.setting}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}
@@ -101,13 +106,13 @@ const socials = [
       </div>
 
       <!-- Sitemap columns -->
-      {sitemap.map(col => (
+      {sitemap.map((col, i) => (
         <div>
-          <h4 class="font-display font-700 text-sm text-white mb-5 tracking-wide">{col.heading}</h4>
-          <ul class="space-y-3">
-            {col.links.map(link => (
+          <h4 class="font-display font-700 text-sm text-white mb-5 tracking-wide" data-cms-text={`columns.${i}.heading`}>{col.heading}</h4>
+          <ul class="space-y-3" data-cms-list={`columns.${i}.links`}>
+            {col.links.map((link) => (
               <li>
-                <a href={link.href} class="font-body text-sm text-white/45 hover:text-white transition-colors duration-200">{link.label}</a>
+                <a href={link.href} data-cms-href="href" class="font-body text-sm text-white/45 hover:text-white transition-colors duration-200" data-cms-text="label">{link.label}</a>
               </li>
             ))}
           </ul>
@@ -120,12 +125,12 @@ const socials = [
   <div class="border-t border-white/8">
     <div class="container-site py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <p class="font-body text-xs text-white/30">
-        © {new Date().getFullYear()} Codcentral Studios. All rights reserved.
+        © {new Date().getFullYear()} <span data-cms-text="copyright_name">Codcentral Studios</span>. <span data-cms-text="copyright_notice">All rights reserved.</span>
       </p>
-      <div class="flex items-center gap-6">
-        <a href="/privacy" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Privacy Policy</a>
-        <a href="/terms"   class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Terms of Service</a>
-        <a href="/cookies" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200">Cookie Policy</a>
+      <div class="flex items-center gap-6" data-cms-list="legal">
+        <a href="/privacy" data-cms-href="href" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200" data-cms-text="label">Privacy Policy</a>
+        <a href="/terms" data-cms-href="href" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200" data-cms-text="label">Terms of Service</a>
+        <a href="/cookies" data-cms-href="href" class="font-body text-xs text-white/30 hover:text-white/70 transition-colors duration-200" data-cms-text="label">Cookie Policy</a>
       </div>
     </div>
   </div>

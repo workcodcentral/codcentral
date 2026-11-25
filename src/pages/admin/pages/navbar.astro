@@ -18,16 +18,11 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       <button class="btn btn-secondary btn-sm" onclick="addLink()" style="margin-top:4px">+ Add Link</button>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="card card-pad">
-        <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">CTA Button</div>
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">CTA Button</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="cta_label" /></div>
         <div class="form-group"><label class="form-label">URL</label><input class="form-input" id="cta_url" /></div>
-      </div>
-      <div class="card card-pad">
-        <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">Logo</div>
-        <div class="form-group"><label class="form-label">Logo Image URL</label><input class="form-input" id="logo_url" /></div>
-        <div class="form-group"><label class="form-label">Site name (alt text)</label><input class="form-input" id="logo_alt" /></div>
       </div>
     </div>
 
@@ -41,14 +36,18 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
       const sb = createClient(sbUrl, sbKey);
 
-      const { data } = await sb.from('page_content').select('*').eq('page', 'navbar').maybeSingle();
+      const { data, error: loadError } = await sb.from('page_content').select('*').eq('page', 'navbar').maybeSingle();
+      if (loadError) {
+        console.error('Could not load navigation content:', loadError);
+        window.showToast('Could not load navigation content: ' + loadError.message);
+        window.saveAll = () => window.showToast('Reload the page before saving.');
+        return;
+      }
       if (data?.content) {
         const c = data.content;
         links = c.links || [];
         document.getElementById('cta_label').value = c.cta_label || '';
         document.getElementById('cta_url').value   = c.cta_url   || '';
-        document.getElementById('logo_url').value  = c.logo_url  || '';
-        document.getElementById('logo_alt').value  = c.logo_alt  || '';
         renderLinks();
       }
 
@@ -57,10 +56,12 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
           links,
           cta_label: document.getElementById('cta_label').value,
           cta_url:   document.getElementById('cta_url').value,
-          logo_url:  document.getElementById('logo_url').value,
-          logo_alt:  document.getElementById('logo_alt').value,
         };
-        await sb.from('page_content').upsert({ page: 'navbar', content }, { onConflict: 'page' });
+        const { error } = await sb.from('page_content').upsert({ page: 'navbar', content }, { onConflict: 'page' });
+        if (error) {
+          window.showToast('Could not save navigation: ' + error.message);
+          return;
+        }
         window.showToast('Navbar saved!');
       };
     })();

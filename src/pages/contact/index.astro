@@ -15,11 +15,11 @@ import Contact from '../../components/Contact.astro';
     </div>
     <div class="container-site relative z-10">
       <div class="reveal max-w-3xl">
-        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5">Get in touch</span>
+        <span class="eyebrow !text-white/50 before:bg-white/30 mb-5" data-cms-text="contact_hero_eyebrow">Get in touch</span>
         <h1 class="mt-4 font-display font-800 text-display-xl text-white text-balance">
-          Let's build something<br/><span class="text-red-400">that matters.</span>
+          <span data-cms-text="contact_hero_line1">Let's build something</span><br/><span class="text-red-400" data-cms-text="contact_hero_line2">that matters.</span>
         </h1>
-        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl">
+        <p class="mt-6 font-body text-lg text-white/65 leading-relaxed max-w-2xl" data-cms-text="contact_hero_sub">
           Tell us about your brand and your goals. Every enquiry is reviewed within one business day,
           and if there's a fit, we'll schedule a 30-minute discovery call to explore it properly.
         </p>
@@ -29,10 +29,10 @@ import Contact from '../../components/Contact.astro';
             { stat: '39+',   label: 'Brands worked with' },
             { stat: '4.9/5', label: 'Client satisfaction' },
             { stat: '98%',   label: 'Retention rate' },
-          ].map(t => (
+          ].map((t, i) => (
             <div class="flex items-center gap-3">
-              <div class="font-display font-800 text-2xl text-red-400">{t.stat}</div>
-              <div class="font-body text-xs text-white/50 leading-tight max-w-[6rem]">{t.label}</div>
+              <div class="font-display font-800 text-2xl text-red-400" data-cms-text={`contact_trust.${i}.stat`}>{t.stat}</div>
+              <div class="font-body text-xs text-white/50 leading-tight max-w-[6rem]" data-cms-text={`contact_trust.${i}.label`}>{t.label}</div>
             </div>
           ))}
         </div>

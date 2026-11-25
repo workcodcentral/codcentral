@@ -16,7 +16,11 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">Hero Section</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">Eyebrow label</label><input class="form-input" id="hero_eyebrow" /></div>
-        <div class="form-group"><label class="form-label">Headline</label><input class="form-input" id="hero_headline" /></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Headline line 1</label><input class="form-input" id="hero_line1" /></div>
+        <div class="form-group"><label class="form-label">Headline line 2</label><input class="form-input" id="hero_line2" /></div>
+        <div class="form-group"><label class="form-label">Headline line 3</label><input class="form-input" id="hero_line3" /></div>
       </div>
       <div class="form-group"><label class="form-label">Sub-headline</label><textarea class="form-textarea" id="hero_sub"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -39,7 +43,9 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       <div class="form-group"><label class="form-label">Sub-text</label><textarea class="form-textarea" id="brand_sub"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">CTA 1 Label</label><input class="form-input" id="brand_cta1" /></div>
+        <div class="form-group"><label class="form-label">CTA 1 URL</label><input class="form-input" id="brand_cta1_url" /></div>
         <div class="form-group"><label class="form-label">CTA 2 Label</label><input class="form-input" id="brand_cta2" /></div>
+        <div class="form-group"><label class="form-label">CTA 2 URL</label><input class="form-input" id="brand_cta2_url" /></div>
       </div>
     </div>
 
@@ -53,11 +59,19 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
       const sb = createClient(sbUrl, sbKey);
 
-      const { data } = await sb.from('page_content').select('*').eq('page', 'home').maybeSingle();
+      const { data, error: loadError } = await sb.from('page_content').select('*').eq('page', 'home').maybeSingle();
+      if (loadError) {
+        console.error('Could not load home page content:', loadError);
+        window.showToast('Could not load home page content: ' + loadError.message);
+        window.saveAll = () => window.showToast('Reload the page before saving.');
+        return;
+      }
       if (data?.content) {
         const c = data.content;
         document.getElementById('hero_eyebrow').value     = c.hero_eyebrow     || '';
-        document.getElementById('hero_headline').value    = c.hero_headline    || '';
+        document.getElementById('hero_line1').value       = c.hero_line1       || c.hero_headline || '';
+        document.getElementById('hero_line2').value       = c.hero_line2       || '';
+        document.getElementById('hero_line3').value       = c.hero_line3       || '';
         document.getElementById('hero_sub').value         = c.hero_sub         || '';
         document.getElementById('hero_cta1_label').value  = c.hero_cta1_label  || '';
         document.getElementById('hero_cta1_url').value    = c.hero_cta1_url    || '';
@@ -66,7 +80,9 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
         document.getElementById('brand_headline').value   = c.brand_headline   || '';
         document.getElementById('brand_sub').value        = c.brand_sub        || '';
         document.getElementById('brand_cta1').value       = c.brand_cta1       || '';
+        document.getElementById('brand_cta1_url').value   = c.brand_cta1_url   || '';
         document.getElementById('brand_cta2').value       = c.brand_cta2       || '';
+        document.getElementById('brand_cta2_url').value   = c.brand_cta2_url   || '';
         statsData = c.stats || [];
         renderStats();
       }
@@ -74,7 +90,9 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
       window.saveAll = async () => {
         const content = {
           hero_eyebrow:   document.getElementById('hero_eyebrow').value,
-          hero_headline:  document.getElementById('hero_headline').value,
+          hero_line1:     document.getElementById('hero_line1').value,
+          hero_line2:     document.getElementById('hero_line2').value,
+          hero_line3:     document.getElementById('hero_line3').value,
           hero_sub:       document.getElementById('hero_sub').value,
           hero_cta1_label:document.getElementById('hero_cta1_label').value,
           hero_cta1_url:  document.getElementById('hero_cta1_url').value,
@@ -83,21 +101,46 @@ const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
           brand_headline: document.getElementById('brand_headline').value,
           brand_sub:      document.getElementById('brand_sub').value,
           brand_cta1:     document.getElementById('brand_cta1').value,
+          brand_cta1_url: document.getElementById('brand_cta1_url').value,
           brand_cta2:     document.getElementById('brand_cta2').value,
+          brand_cta2_url: document.getElementById('brand_cta2_url').value,
           stats: statsData,
         };
-        await sb.from('page_content').upsert({ page: 'home', content }, { onConflict: 'page' });
+        const { error } = await sb.from('page_content').upsert({ page: 'home', content }, { onConflict: 'page' });
+        if (error) {
+          window.showToast('Could not save home page: ' + error.message);
+          return;
+        }
         window.showToast('Home page saved!');
       };
     })();
 
     function renderStats() {
-      document.getElementById('stats-wrap').innerHTML = statsData.map((s, i) => `
-        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px">
-          <input class="form-input" value="${s.value || ''}" placeholder="Value (e.g. 39)" oninput="statsData[${i}].value=this.value" />
-          <input class="form-input" value="${s.label || ''}" placeholder="Label" oninput="statsData[${i}].label=this.value" />
-          <button class="btn btn-danger btn-sm" onclick="removeStat(${i})">✕</button>
-        </div>`).join('');
+      const wrapper = document.getElementById('stats-wrap');
+      wrapper.replaceChildren();
+      statsData.forEach((stat, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px';
+        [
+          ['value', 'Value (e.g. 39)'],
+          ['suffix', 'Suffix (e.g. +, M)'],
+          ['label', 'Label'],
+        ].forEach(([field, placeholder]) => {
+          const input = document.createElement('input');
+          input.className = 'form-input';
+          input.value = stat[field] || '';
+          input.placeholder = placeholder;
+          input.addEventListener('input', () => { statsData[index][field] = input.value; });
+          row.append(input);
+        });
+        const remove = document.createElement('button');
+        remove.className = 'btn btn-danger btn-sm';
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+        remove.addEventListener('click', () => window.removeStat(index));
+        row.append(remove);
+        wrapper.append(row);
+      });
     }
 
     window.addStat    = () => { statsData.push({ value: '', label: '' }); renderStats(); };

@@ -64,11 +64,11 @@ const segments = [
   <div class="container-site">
     <!-- Header -->
     <div class="reveal text-center max-w-2xl mx-auto mb-16">
-      <span class="eyebrow mb-4">Why choose us</span>
+      <span class="eyebrow mb-4" data-cms-text="why_eyebrow">Why choose us</span>
       <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance">
-        Why brands choose Codcentral
+        <span data-cms-text="why_title">Why brands choose Codcentral</span>
       </h2>
-      <p class="mt-4 font-body text-base text-navy-400/70 leading-relaxed">
+      <p class="mt-4 font-body text-base text-navy-400/70 leading-relaxed" data-cms-text="why_intro">
         A full-service digital growth partner — fusing strategy, technology, and design to accelerate brands across every market.
       </p>
     </div>
@@ -79,6 +79,7 @@ const segments = [
       <div class="order-2 lg:order-1 overflow-hidden">
         <img
           src="/team.jpg"
+          data-cms-src="team_image"
           alt="Codcentral Studios team"
           class="w-full h-72 lg:h-96 object-cover"
           loading="lazy"
@@ -87,14 +88,14 @@ const segments = [
 
       <!-- Story copy -->
       <div class="order-1 lg:order-2 flex flex-col justify-center gap-5">
-        <span class="eyebrow">Our story</span>
+        <span class="eyebrow" data-cms-text="story_eyebrow">Our story</span>
         <h3 class="font-display font-800 text-display-md text-navy-500 text-balance leading-tight">
-          Built to kill the guesswork in digital growth.
+          <span data-cms-text="story_heading">Built to kill the guesswork in digital growth.</span>
         </h3>
-        <p class="font-body text-sm text-navy-400/70 leading-relaxed">
+        <p class="font-body text-sm text-navy-400/70 leading-relaxed" data-cms-text="story_p1">
           Founded in 2025, Codcentral Studios was born out of a clear realisation: too many businesses fail to scale online — not because of a lack of ambition, but because of weak digital infrastructure, random marketing tactics, and poor positioning.
         </p>
-        <p class="font-body text-sm text-navy-400/70 leading-relaxed">
+        <p class="font-body text-sm text-navy-400/70 leading-relaxed" data-cms-text="story_p2">
           We exist to change that. We take brands away from wishful advertising and equip them with engineered, data-driven systems that generate real awareness, qualified leads, and sustained revenue.
         </p>
       </div>
@@ -103,11 +104,11 @@ const segments = [
     <!-- How we work -->
     <div class="reveal border-t border-canvas-dark pt-16 mb-20">
       <div class="max-w-xl mb-12">
-        <span class="eyebrow mb-4">How we work</span>
+        <span class="eyebrow mb-4" data-cms-text="process_eyebrow">How we work</span>
         <h3 class="font-display font-700 text-display-md text-navy-500 text-balance">
-          From first call to full execution.
+          <span data-cms-text="process_title">From first call to full execution.</span>
         </h3>
-        <p class="mt-3 font-body text-sm text-navy-400/70 leading-relaxed">
+        <p class="mt-3 font-body text-sm text-navy-400/70 leading-relaxed" data-cms-text="process_intro">
           Every engagement follows the same disciplined process — no shortcuts, no guesswork.
         </p>
       </div>
@@ -116,15 +117,15 @@ const segments = [
         <!-- Connecting line (desktop) -->
         <div class="hidden lg:block absolute top-8 left-0 right-0 h-px bg-canvas-dark z-0"></div>
 
-        <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 relative z-10">
+        <div class="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 relative z-10" data-cms-list="steps">
           {steps.map((s) => (
             <div class="reveal flex flex-col gap-3">
               <!-- Step number bubble -->
               <div class="w-10 h-10 rounded-full bg-navy-500 flex items-center justify-center shrink-0">
-                <span class="font-body font-700 text-xs text-white tracking-wider">{s.num}</span>
+                <span class="font-body font-700 text-xs text-white tracking-wider" data-cms-text="num">{s.num}</span>
               </div>
-              <h4 class="font-display font-700 text-base text-navy-500">{s.title}</h4>
-              <p class="font-body text-xs text-navy-400/65 leading-relaxed">{s.desc}</p>
+              <h4 class="font-display font-700 text-base text-navy-500" data-cms-text="title">{s.title}</h4>
+              <p class="font-body text-xs text-navy-400/65 leading-relaxed" data-cms-text="desc">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -134,19 +135,21 @@ const segments = [
     <!-- Who we serve carousel -->
     <div class="reveal border-t border-canvas-dark pt-16">
       <div class="text-center max-w-xl mx-auto mb-12">
-        <span class="eyebrow mb-3">Who we serve</span>
+        <span class="eyebrow mb-3" data-cms-text="segments_eyebrow">Who we serve</span>
         <h3 class="font-display font-700 text-display-md text-navy-500 text-balance">
-          Built for every stage of growth
+          <span data-cms-text="segments_title">Built for every stage of growth</span>
         </h3>
       </div>
 
       <div class="relative overflow-hidden -mx-5 md:-mx-8 lg:-mx-12" id="segments-carousel">
         <!-- Slides -->
-        <div id="segments-track" class="flex transition-transform duration-700 ease-in-out">
+        <div id="segments-track" class="flex transition-transform duration-700 ease-in-out" data-cms-list="segments">
           {segments.map((s) => (
             <div class="segments-slide relative w-full shrink-0 h-[480px] md:h-[600px]">
               <img
                 src={s.image}
+                data-cms-src="image"
+                data-cms-alt="label"
                 alt={s.label}
                 class="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
@@ -155,9 +158,9 @@ const segments = [
               <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
               <!-- Label -->
               <div class="absolute bottom-0 left-0 right-0 px-5 pb-10 md:px-8 lg:px-12">
-                <p class="font-body font-700 text-xs text-red-400 tracking-widest uppercase mb-2">{s.tag}</p>
-                <h4 class="font-display font-800 text-display-sm text-white">{s.label}</h4>
-                <p class="mt-2 font-body text-sm text-white/70 leading-relaxed max-w-lg">{s.desc}</p>
+                <p class="font-body font-700 text-xs text-red-400 tracking-widest uppercase mb-2" data-cms-text="tag">{s.tag}</p>
+                <h4 class="font-display font-800 text-display-sm text-white" data-cms-text="label">{s.label}</h4>
+                <p class="mt-2 font-body text-sm text-white/70 leading-relaxed max-w-lg" data-cms-text="desc">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -169,14 +172,15 @@ const segments = [
 
 <script>
   const track  = document.getElementById('segments-track')!;
-  const slides = document.querySelectorAll('.segments-slide');
-  const total  = slides.length;
   let current  = 0;
 
   const goTo = (index: number) => {
-    current = (index + total) % total;
+    const total = track.querySelectorAll('.segments-slide').length;
+    if (!total) return;
+    current = (index % total + total) % total;
     track.style.transform = `translateX(-${current * 100}%)`;
   };
 
   setInterval(() => goTo(current + 1), 2000);
+  window.addEventListener('codcentral:cms-updated', () => goTo(0));
 </script>

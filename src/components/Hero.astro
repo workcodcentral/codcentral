@@ -28,29 +28,30 @@ const stats = [
   <div class="container-site relative z-10 pt-28 pb-12 md:pt-36">
     <!-- Eyebrow -->
     <div class="reveal" style="transition-delay:80ms">
-      <span class="eyebrow !text-white/60 before:bg-white/40">Global Digital Growth Partner</span>
+      <span class="eyebrow !text-white/60 before:bg-white/40" data-cms-text="hero_eyebrow">Global Digital Growth Partner</span>
     </div>
 
     <!-- Headline -->
     <h1 class="reveal mt-5 font-display font-800 text-display-2xl text-white leading-[1.04] tracking-[-0.03em] text-balance max-w-4xl" style="transition-delay:160ms">
-      We scale brands<br/>
-      <span class="text-red-400">that move</span> the world.
+      <span data-cms-text="hero_line1">We scale brands</span><br/>
+      <span class="text-red-400" data-cms-text="hero_line2">that move</span> <span data-cms-text="hero_line3">the world.</span>
     </h1>
 
     <!-- Sub-headline -->
     <p class="reveal mt-6 font-body text-lg text-white/70 max-w-2xl leading-relaxed" style="transition-delay:240ms">
-      Codcentral Studios is a full-service digital growth agency " fusing marketing strategy,
+      <span data-cms-text="hero_sub">Codcentral Studios is a full-service digital growth agency " fusing marketing strategy,
       technology engineering, and award-winning design to accelerate brands across every market.
+      </span>
     </p>
 
     <!-- CTAs -->
     <div class="reveal flex flex-wrap gap-4 mt-10" style="transition-delay:320ms">
-      <a href="/contact" class="btn-primary text-sm px-8 py-4">
-        Start Growing
+      <a href="/contact" class="btn-primary text-sm px-8 py-4" data-cms-href="hero_cta1_url">
+        <span data-cms-text="hero_cta1_label">Start Growing</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </a>
-      <a href="/work" class="btn-outline-white text-sm px-8 py-4">
-        See Our Work
+      <a href="/work" class="btn-outline-white text-sm px-8 py-4" data-cms-href="hero_cta2_url">
+        <span data-cms-text="hero_cta2_label">See Our Work</span>
       </a>
     </div>
 
@@ -61,14 +62,14 @@ const stats = [
           <span class={`w-7 h-7 rounded-full border-2 border-navy-500 flex items-center justify-center text-xs font-700 text-white ${['bg-red-400','bg-sage-300','bg-navy-300','bg-red-300','bg-sage-400'][i]}`}>{l}</span>
         ))}
       </span>
-      Trusted by 39+ brands worldwide
+      <span data-cms-text="hero_social_proof">Trusted by 39+ brands worldwide</span>
     </p>
   </div>
 
   <!-- Results strip -->
   <div class="relative z-10 mt-auto border-t border-white/10">
     <div class="container-site">
-      <div class="grid grid-cols-2 md:grid-cols-4">
+      <div class="grid grid-cols-2 md:grid-cols-4" data-cms-list="stats">
         {stats.map((s, i) => (
           <div
             class={`reveal py-7 px-4 text-center ${i < stats.length - 1 ? 'border-r border-white/10' : ''}`}
@@ -80,9 +81,11 @@ const stats = [
                 data-target={s.value}
                 data-suffix={s.suffix}
                 data-decimal={s.value.includes('.') ? 'true' : 'false'}
+                data-cms-target="value"
+                data-cms-suffix="suffix"
               >0{s.suffix}</span>
             </div>
-            <div class="font-body text-xs text-white/50 mt-1 tracking-wide">{s.label}</div>
+            <div class="font-body text-xs text-white/50 mt-1 tracking-wide" data-cms-text="label">{s.label}</div>
           </div>
         ))}
       </div>
@@ -91,7 +94,9 @@ const stats = [
 </section>
 
 <script>
-  document.querySelectorAll<HTMLElement>('.count-up').forEach(el => {
+  const initializeCountUps = () => document.querySelectorAll<HTMLElement>('.count-up').forEach(el => {
+    if (el.dataset.countUpObserved === 'true') return;
+    el.dataset.countUpObserved = 'true';
     const target  = parseFloat(el.dataset.target!);
     const suffix  = el.dataset.suffix ?? '';
     const decimal = el.dataset.decimal === 'true';
@@ -133,4 +138,7 @@ const stats = [
 
     obs.observe(el);
   });
+
+  initializeCountUps();
+  window.addEventListener('codcentral:cms-updated', initializeCountUps);
 </script>

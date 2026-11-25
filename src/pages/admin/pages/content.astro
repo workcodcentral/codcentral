@@ -1,0 +1,388 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+
+<DashboardLayout title="Site Content" active="Site Content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Site Content</div>
+      <div class="page-sub">Edit live page content as structured JSON. Changes appear on the website after saving.</div>
+    </div>
+    <button id="save-content" class="btn btn-primary" type="button">Save Changes</button>
+  </div>
+
+  <div id="content-error" class="card card-pad" style="display:none;margin-bottom:16px;border-color:#dc2626;color:#fca5a5"></div>
+  <div class="card card-pad">
+    <div class="form-group">
+      <label class="form-label" for="content-page">Page</label>
+      <select class="form-select" id="content-page">
+        <option value="home">Home</option>
+        <option value="navbar">Navbar</option>
+        <option value="footer">Footer</option>
+        <option value="about">About</option>
+        <option value="services">Services</option>
+        <option value="work">Work</option>
+        <option value="insights">Insights</option>
+        <option value="contact">Contact</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <div id="content-fields" style="display:grid;gap:12px"></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.6">
+      Text, links, images, and existing repeated items can be edited here. The editor keeps content
+      slots aligned with the page layout; posts and news items are managed in their respective sections.
+      <a id="open-page" href="/" target="_blank" rel="noopener noreferrer" style="color:#e2e8f0;text-decoration:underline">Open selected page</a>
+    </p>
+  </div>
+
+  <script define:vars={{ sbUrl, sbKey }}>
+    const pageSelect = document.getElementById('content-page');
+    const fieldsRoot = document.getElementById('content-fields');
+    const errorBox = document.getElementById('content-error');
+    const saveButton = document.getElementById('save-content');
+    const pageUrls = {
+      home: '/',
+      navbar: '/',
+      footer: '/',
+      about: '/about',
+      services: '/services',
+      work: '/work',
+      insights: '/insights',
+      contact: '/contact',
+    };
+    const cmsManagedCollections = new Set(['latestArticles', 'articles']);
+
+    const showError = (message) => {
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    };
+
+    const loadPage = async (supabase) => {
+      errorBox.style.display = 'none';
+      const page = pageSelect.value;
+      document.getElementById('open-page').href = pageUrls[page];
+      fieldsRoot.replaceChildren();
+      const response = await fetch(pageUrls[page], { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Could not read the public ${page} page.`);
+      const html = await response.text();
+      const documentPage = new DOMParser().parseFromString(html, 'text/html');
+      documentPage.querySelectorAll('[data-cms-scope]').forEach((element) => {
+        if (element.getAttribute('data-cms-scope') !== page) element.remove();
+      });
+      const defaults = {};
+
+      const setPath = (target, path, value) => {
+        const parts = path.split('.');
+        let current = target;
+        parts.forEach((part, index) => {
+          const key = /^\d+$/.test(part) ? Number(part) : part;
+          if (index === parts.length - 1) {
+            current[key] = value;
+          } else {
+            const nextKey = parts[index + 1];
+            if (current[key] === undefined) current[key] = /^\d+$/.test(nextKey) ? [] : {};
+            current = current[key];
+          }
+        });
+      };
+
+      const bindings = [
+        ['data-cms-text', (element) => element.textContent.trim()],
+        ['data-cms-src', (element) => element.getAttribute('src')],
+        ['data-cms-href', (element) => element.getAttribute('href')],
+        ['data-cms-alt', (element) => element.getAttribute('alt')],
+        ['data-cms-target', (element) => element.getAttribute('data-target')],
+        ['data-cms-suffix', (element) => element.getAttribute('data-suffix')],
+        ['data-cms-placeholder', (element) => element.getAttribute('placeholder')],
+      ];
+      const getListPath = (element) => {
+        const path = element.getAttribute('data-cms-list');
+        const owner = element.parentElement.closest('[data-cms-list]');
+        return owner ? `${getListPath(owner)}.*.${path}` : path;
+      };
+      const editableLists = new Set(
+        [...documentPage.querySelectorAll('[data-cms-list]')]
+          .map(getListPath)
+          .filter((path) => path && !cmsManagedCollections.has(path))
+      );
+      if (page !== 'navbar' && page !== 'footer') {
+        defaults.seo_title = documentPage.title;
+        defaults.seo_description = documentPage.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+        defaults.seo_image = documentPage.querySelector('meta[property="og:image"]')?.getAttribute('content') || '';
+      }
+      const readScope = (scope, ownerList) => {
+        const values = {};
+        let scalarValue;
+        let hasScalarValue = false;
+        bindings.forEach(([attribute, read]) => {
+          const elements = [...scope.querySelectorAll(`[${attribute}]`)];
+          if (scope instanceof Element && scope.hasAttribute(attribute)) elements.unshift(scope);
+          elements.forEach((element) => {
+            if (element.closest('[data-cms-list]') !== ownerList) return;
+            const path = element.getAttribute(attribute);
+            const value = read(element);
+            if (path === '.' && value !== null) {
+              scalarValue = value;
+              hasScalarValue = true;
+            } else if (path && value !== null) {
+              setPath(values, path, value);
+            }
+          });
+        });
+
+        scope.querySelectorAll('[data-cms-list]').forEach((list) => {
+          if (list.parentElement.closest('[data-cms-list]') !== ownerList) return;
+          const path = list.getAttribute('data-cms-list');
+          if (!path) return;
+          const entries = [...list.children]
+            .filter((entry) => !(entry instanceof HTMLTemplateElement))
+            .map((entry) => readScope(entry, list));
+          setPath(values, path, entries);
+        });
+        return hasScalarValue ? scalarValue : values;
+      };
+      Object.assign(defaults, readScope(documentPage, null));
+
+      const { data, error } = await supabase
+        .from('page_content')
+        .select('content')
+        .eq('page', page)
+        .maybeSingle();
+      if (error) throw error;
+      itemTemplateData = defaults;
+      if (data?.content) {
+        const merge = (fallback, saved) => {
+          if (Array.isArray(fallback) && Array.isArray(saved)) {
+            return saved.map((value, index) => fallback[index] === undefined ? value : merge(fallback[index], value));
+          }
+          if (fallback && saved && typeof fallback === 'object' && typeof saved === 'object' &&
+              !Array.isArray(fallback) && !Array.isArray(saved)) {
+            return Object.fromEntries([...new Set([...Object.keys(fallback), ...Object.keys(saved)])]
+              .map((key) => [key, saved[key] === undefined ? fallback[key] : merge(fallback[key], saved[key])]));
+          }
+          return saved === undefined ? fallback : saved;
+        };
+        renderFields(merge(defaults, data.content), editableLists);
+      } else {
+        renderFields(defaults, editableLists);
+      }
+    };
+
+    let contentData = {};
+    let editableListPaths = new Set();
+    let itemTemplateData = {};
+
+    const getPath = (source, path) => path.split('.').reduce((value, part) => {
+      if (value === undefined || value === null) return undefined;
+      return value[part];
+    }, source);
+
+    const setPathValue = (target, path, value) => {
+      const parts = path.split('.');
+      let current = target;
+      parts.forEach((part, index) => {
+        const key = /^\d+$/.test(part) ? Number(part) : part;
+        if (index === parts.length - 1) {
+          current[key] = value;
+        } else {
+          current = current[key];
+        }
+      });
+    };
+
+    const titleFor = (value) => value
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+    const cloneValue = (value) => JSON.parse(JSON.stringify(value));
+    const isEditableList = (path) => {
+      const parts = path.split('.');
+      return [...editableListPaths].some((candidate) => {
+        const pattern = candidate.split('.');
+        return pattern.length === parts.length && pattern.every((part, index) =>
+          part === '*' ? /^\d+$/.test(parts[index]) : part === parts[index]
+        );
+      });
+    };
+
+    const renderFields = (content, dynamicLists) => {
+      contentData = content;
+      editableListPaths = dynamicLists;
+      fieldsRoot.replaceChildren();
+      const entries = Object.entries(contentData);
+      if (!entries.length) {
+        const empty = document.createElement('p');
+        empty.className = 'page-sub';
+        empty.textContent = 'No editable fields were found for this page.';
+        fieldsRoot.append(empty);
+        return;
+      }
+
+      entries.forEach(([key, value]) => {
+        const section = document.createElement('section');
+        section.className = 'card card-pad';
+        const title = document.createElement('div');
+        title.textContent = titleFor(key);
+        title.style.cssText = 'font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)';
+        section.append(title);
+        renderValue(value, key, section);
+        fieldsRoot.append(section);
+      });
+    };
+
+    const renderValue = (value, path, parent) => {
+      if (Array.isArray(value)) {
+        const group = document.createElement('details');
+        group.open = path.split('.').length <= 1;
+        group.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px';
+        const summary = document.createElement('summary');
+        summary.textContent = `${titleFor(path.split('.').pop())} (${value.length})`;
+        summary.style.cssText = 'font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px';
+        group.append(summary);
+
+        value.forEach((item, index) => {
+          const itemPath = `${path}.${index}`;
+          const itemCard = document.createElement('div');
+          itemCard.style.cssText = 'border-top:1px solid var(--border);padding:12px 0';
+          const itemHeader = document.createElement('div');
+          itemHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px';
+          const itemTitle = document.createElement('strong');
+          itemTitle.textContent = typeof item === 'object' && item
+            ? (item.title || item.name || item.label || `Item ${index + 1}`)
+            : `Item ${index + 1}`;
+          itemTitle.style.fontSize = '12px';
+          itemHeader.append(itemTitle);
+
+          if (isEditableList(path)) {
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex;gap:6px';
+            const move = (offset, label) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'btn btn-secondary btn-sm';
+              button.textContent = label;
+              button.disabled = index + offset < 0 || index + offset >= value.length;
+              button.addEventListener('click', () => {
+                const next = [...getPath(contentData, path)];
+                [next[index], next[index + offset]] = [next[index + offset], next[index]];
+                setPathValue(contentData, path, next);
+                renderFields(contentData, editableListPaths);
+              });
+              actions.append(button);
+            };
+            move(-1, 'Up');
+            move(1, 'Down');
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn btn-danger btn-sm';
+            remove.textContent = 'Remove';
+            remove.addEventListener('click', () => {
+              const next = [...getPath(contentData, path)];
+              next.splice(index, 1);
+              setPathValue(contentData, path, next);
+              renderFields(contentData, editableListPaths);
+            });
+            actions.append(remove);
+            itemHeader.append(actions);
+          }
+
+          itemCard.append(itemHeader);
+          renderValue(item, itemPath, itemCard);
+          group.append(itemCard);
+        });
+
+        if (isEditableList(path)) {
+          const add = document.createElement('button');
+          add.type = 'button';
+          add.className = 'btn btn-secondary btn-sm';
+          add.textContent = '+ Add item';
+          add.addEventListener('click', () => {
+            const next = [...getPath(contentData, path)];
+            const templates = getPath(itemTemplateData, path);
+            const sample = cloneValue(next.length ? next[next.length - 1] : templates?.[0] || {});
+            const clearStrings = (item) => {
+              if (Array.isArray(item)) return item.map(clearStrings);
+              if (item && typeof item === 'object') {
+                return Object.fromEntries(Object.entries(item).map(([key, child]) => [key, clearStrings(child)]));
+              }
+              return typeof item === 'string' ? '' : item;
+            };
+            const blankItem = clearStrings(sample);
+            next.push(blankItem);
+            setPathValue(contentData, path, next);
+            renderFields(contentData, editableListPaths);
+          });
+          group.append(add);
+        }
+        parent.append(group);
+        return;
+      }
+
+      if (value && typeof value === 'object') {
+        Object.entries(value).forEach(([key, child]) => renderValue(child, `${path}.${key}`, parent));
+        return;
+      }
+
+      const field = document.createElement('div');
+      field.className = 'form-group';
+      const label = document.createElement('label');
+      label.className = 'form-label';
+      label.textContent = titleFor(path.split('.').pop());
+      const multiline = typeof value === 'string' && value.length > 100;
+      const control = document.createElement(multiline ? 'textarea' : 'input');
+      control.className = multiline ? 'form-textarea' : 'form-input';
+      if (control instanceof HTMLInputElement && typeof value === 'number') control.type = 'number';
+      control.value = value === null || value === undefined ? '' : String(value);
+      control.addEventListener('input', () => {
+        const nextValue = control instanceof HTMLInputElement && control.type === 'number'
+          ? Number(control.value)
+          : control.value;
+        setPathValue(contentData, path, nextValue);
+      });
+      field.append(label, control);
+      parent.append(field);
+    };
+
+    (async () => {
+      if (!sbUrl || !sbKey || sbUrl === 'your_supabase_project_url') {
+        showError('Configure PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY before editing site content.');
+        saveButton.disabled = true;
+        return;
+      }
+
+      try {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabase = createClient(sbUrl, sbKey);
+        await loadPage(supabase);
+
+        pageSelect.addEventListener('change', () => {
+          loadPage(supabase).catch((error) => {
+            showError('Could not load content: ' + error.message);
+          });
+        });
+
+        saveButton.addEventListener('click', async () => {
+          errorBox.style.display = 'none';
+          saveButton.disabled = true;
+          try {
+            const { error } = await supabase
+              .from('page_content')
+              .upsert({ page: pageSelect.value, content: contentData }, { onConflict: 'page' });
+            if (error) throw error;
+            window.showToast('Page content saved.');
+          } catch (error) {
+            showError('Could not save page content: ' + error.message);
+          } finally {
+            saveButton.disabled = false;
+          }
+        });
+      } catch (error) {
+        showError('Could not initialize the content editor: ' + error.message);
+      }
+    })();
+  </script>
+</DashboardLayout>

@@ -25,18 +25,18 @@ const pillars = [
       <!-- Left: content -->
       <div class="reveal space-y-10">
         <div>
-          <span class="eyebrow mb-4">Our reach</span>
+          <span class="eyebrow mb-4" data-cms-text="markets_eyebrow">Our reach</span>
           <h2 class="font-display font-800 text-display-lg text-navy-500 text-balance mt-4">
-            Built to stop<br/><span class="text-red-400">random marketing.</span>
+            <span data-cms-text="markets_title1">Built to stop</span><br/><span class="text-red-400" data-cms-text="markets_title2">random marketing.</span>
           </h2>
         </div>
 
-        <div class="space-y-8">
+        <div class="space-y-8" data-cms-list="pillars">
           {pillars.map((p) => (
             <div class="border-l-2 border-canvas-dark pl-5">
-              <span class="font-body font-700 text-xs tracking-[0.15em] uppercase text-red-400 block mb-1">{p.eyebrow}</span>
-              <h3 class="font-display font-700 text-lg text-navy-500 mb-2">{p.heading}</h3>
-              <p class="font-body text-sm text-navy-400/70 leading-relaxed" set:html={p.body} />
+              <span class="font-body font-700 text-xs tracking-[0.15em] uppercase text-red-400 block mb-1" data-cms-text="eyebrow">{p.eyebrow}</span>
+              <h3 class="font-display font-700 text-lg text-navy-500 mb-2" data-cms-text="heading">{p.heading}</h3>
+              <p class="font-body text-sm text-navy-400/70 leading-relaxed" set:html={p.body} data-cms-text="body" />
             </div>
           ))}
         </div>
@@ -45,7 +45,7 @@ const pillars = [
           href="/about"
           class="inline-flex items-center gap-2 font-body font-600 text-sm text-red-400 hover:text-red-500 transition-colors duration-200 group"
         >
-          Read more about us
+          <span data-cms-text="markets_cta">Read more about us</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
       </div>
@@ -55,17 +55,18 @@ const pillars = [
         <div class="flex flex-col items-center text-center">
           <img
             src="/emmanuel.png"
+            data-cms-src="markets_image"
             alt="Emmanuel Madelle " Digital Consultant"
             class="w-full h-auto object-cover"
           />
           <!-- Name & title -->
           <div class="mt-5">
-            <div class="font-display font-800 text-lg text-navy-500">Emmanuel Madelle</div>
-            <div class="font-body text-sm text-navy-400/60 mt-0.5">Digital Consultant</div>
+            <div class="font-display font-800 text-lg text-navy-500" data-cms-text="markets_person_name">Emmanuel Madelle</div>
+            <div class="font-body text-sm text-navy-400/60 mt-0.5" data-cms-text="markets_person_title">Digital Consultant</div>
           </div>
           <!-- Quote -->
           <p class="mt-4 font-display font-700 text-display-sm text-red-400 italic">
-            "Stop Random Marketing"
+            <span data-cms-text="markets_quote">"Stop Random Marketing"</span>
           </p>
         </div>
       </div>

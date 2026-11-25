@@ -4,6 +4,8 @@ export interface Props {
   active?: string;
 }
 const { title = 'Dashboard', active = '' } = Astro.props;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 const nav = [
   {
@@ -23,6 +25,7 @@ const nav = [
       { label: 'Home',      href: '/admin/pages/home',      icon: 'house' },
       { label: 'Navbar',    href: '/admin/pages/navbar',    icon: 'menu' },
       { label: 'About Us',  href: '/admin/pages/about',     icon: 'info' },
+      { label: 'Site Content', href: '/admin/pages/content', icon: 'pen-line' },
       { label: 'Resources', href: '/admin/pages/resources', icon: 'folder-open' },
       { label: 'Shop',      href: '/admin/pages/shop',      icon: 'shopping-bag' },
     ],
@@ -38,7 +41,7 @@ const nav = [
   {
     group: 'Account',
     items: [
-      { label: 'Users',    href: '/admin/users',    icon: 'users' },
+      { label: 'User Profiles', href: '/admin/users', icon: 'users' },
       { label: 'Settings', href: '/admin/settings', icon: 'settings' },
     ],
   },
@@ -257,7 +260,14 @@ const icons: Record<string, string> = {
   </style>
 </head>
 <body>
-<div class="dash-shell">
+<div id="admin-auth-gate" style="position:fixed;inset:0;z-index:500;background:#0f1117;display:flex;align-items:center;justify-content:center;padding:24px;color:#e2e8f0;text-align:center">
+  <div>
+    <div style="font-size:15px;font-weight:700">Verifying admin access…</div>
+    <div id="admin-auth-message" style="font-size:13px;color:#94a3b8;margin-top:8px">Please wait.</div>
+    <a href="/admin/login" style="display:inline-block;margin-top:16px;color:#e2e8f0;font-size:13px">Go to sign in</a>
+  </div>
+</div>
+<div class="dash-shell" id="admin-dashboard" style="display:none">
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -300,6 +310,7 @@ const icons: Record<string, string> = {
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           View site
         </a>
+        <button id="admin-sign-out" class="btn btn-secondary btn-sm">Sign out</button>
         <div class="topbar-avatar" title="Admin">A</div>
       </div>
     </header>
@@ -311,6 +322,55 @@ const icons: Record<string, string> = {
 </div>
 
 <div id="toast"></div>
+
+<script define:vars={{ supabaseUrl, supabaseKey }}>
+  (async () => {
+    const gate = document.getElementById('admin-auth-gate');
+    const message = document.getElementById('admin-auth-message');
+    const dashboard = document.getElementById('admin-dashboard');
+    const loginUrl = '/admin/login';
+
+    if (!supabaseUrl || !supabaseKey || supabaseUrl === 'your_supabase_project_url') {
+      message.textContent = 'Configure PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY to use the admin dashboard.';
+      return;
+    }
+
+    try {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      const { data: role, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (roleError) throw roleError;
+      if (role?.role !== 'admin') {
+        message.textContent = 'This account does not have administrator access.';
+        return;
+      }
+
+      dashboard.style.display = 'flex';
+      gate.remove();
+      document.getElementById('admin-sign-out')?.addEventListener('click', async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          window.showToast('Sign out failed: ' + error.message);
+          return;
+        }
+        window.location.replace(loginUrl);
+      });
+    } catch (error) {
+      message.textContent = error instanceof Error ? error.message : 'Could not verify admin access.';
+    }
+  })();
+</script>
 
 <script>
   // Mobile sidebar

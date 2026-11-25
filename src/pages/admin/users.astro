@@ -3,11 +3,16 @@ import DashboardLayout from '../../layouts/DashboardLayout.astro';
 const sbUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const sbKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
 ---
-<DashboardLayout title="Users" active="Users">
+<DashboardLayout title="User Profiles" active="User Profiles">
 
   <div class="page-header">
-    <div><div class="page-title">Users</div><div class="page-sub">Manage admin and editor accounts.</div></div>
+    <div><div class="page-title">User Profiles</div><div class="page-sub">Manage profile records stored by the website.</div></div>
     <button class="btn btn-primary" onclick="openModal()">+ Add User</button>
+  </div>
+
+  <div class="card card-pad" style="margin-bottom:16px;border-color:#854d0e;color:#fde68a;font-size:13px;line-height:1.6">
+    These records do not create sign-in accounts or grant dashboard access. Create accounts in Supabase Auth,
+    then assign administrator access by adding the Auth user ID to <code>public.user_roles</code>.
   </div>
 
   <div class="toolbar">

@@ -10,14 +10,12 @@ const logos = [
   { src: '/ugm.jpg',        alt: 'UGM' },
 ];
 
-// Duplicate for seamless infinite scroll
-const doubled = [...logos, ...logos];
 ---
 
 <section id="trusted-by" class="py-14 bg-white border-y border-canvas-dark overflow-hidden">
   <div class="container-site mb-8 reveal">
     <p class="text-center font-body font-600 text-xs tracking-[0.2em] uppercase text-navy-400/50">
-      Trusted by brands that move the world
+      <span data-cms-text="logos_heading">Trusted by brands that move the world</span>
     </p>
   </div>
 
@@ -28,12 +26,14 @@ const doubled = [...logos, ...logos];
     <!-- Right fade -->
     <div class="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent"></div>
 
-    <div class="logos-track flex items-center gap-12 w-max">
-      {doubled.map((logo) => (
+    <div class="logos-track flex items-center gap-12 w-max" data-cms-list="logos">
+      {logos.map((logo) => (
         <div class="flex-shrink-0 h-[72px] w-[166px] flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
           <img
             src={logo.src}
             alt={logo.alt}
+            data-cms-src="src"
+            data-cms-alt="alt"
             class="max-h-[62px] max-w-[156px] w-auto h-auto object-contain"
             loading="lazy"
           />
@@ -42,6 +42,18 @@ const doubled = [...logos, ...logos];
     </div>
   </div>
 </section>
+
+<script>
+  const track = document.querySelector<HTMLElement>('.logos-track');
+  if (track) {
+    const duplicateLogos = () => {
+      const originals = [...track.children];
+      track.replaceChildren(...originals, ...originals.map((logo) => logo.cloneNode(true)));
+    };
+    duplicateLogos();
+    window.addEventListener('codcentral:cms-updated', duplicateLogos);
+  }
+</script>
 
 <style>
   .logos-track {
